@@ -1,0 +1,198 @@
+datasource db {
+  provider = "postgresql"
+}
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+model User {
+  id        String @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile[]
+}
+
+
+model Profile {
+    id  String @id @default(uuid())
+    firstName   String  @db.VarChar(50)
+    lastName    String  @db.VarChar(50)
+    phoneNumber String     
+    role    profileRole
+
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    property    Property[]
+
+    userId  String
+    user User @relation(fields: [userId], references: [id])
+
+    transmissionAsSeller    Transmission[] @relation("previousOwner")
+    transmissionAsBuyer Transmission[] @relation("newOwner")
+
+}
+
+model Property {
+    id  String @id @default(uuid())
+    name    String  @db.VarChar(50)
+    address String  @db.VarChar(50)
+    houseType   houseType
+    surface Int
+    numberOfLevels  Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    room        Room[]
+    project     Project[]
+    task        Task[]
+    document    Document[]
+    transmission Transmission[]
+
+    profileId String
+    profile     Profile     @relation(fields: [profileId], references: [id])
+    
+}
+
+model Room {
+    id  String @id @default(uuid())
+    name String @db.VarChar(50)
+    roomType    roomType
+    surface Int
+    floorFinition String    @db.VarChar(50)
+    wallFinition String    @db.VarChar(50)
+    ceilingFinition String    @db.VarChar(50)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    task        Task[]
+    document    Document[]
+    project_has_room    project_has_room[]
+
+    propertyId String
+    property     Property     @relation(fields: [propertyId], references: [id])
+
+}
+
+model Project {
+    id  String @id @default(uuid())
+    title   String  @db.VarChar(50)
+    description   String  @db.VarChar(150)
+    status   projectStatus
+    startDate   DateTime
+    endDate     DateTime
+
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    document    Document[]
+    project_has_room    project_has_room[]
+
+    propertyId  String
+    property     Property     @relation(fields: [propertyId], references: [id])
+}
+
+model Task {
+    id  String @id @default(uuid())
+    title   String  @db.VarChar(50)
+    description   String  @db.VarChar(150)
+    status   taskStatus
+    budget  Int?
+    professional    String? @db.VarChar(150)
+    professionalProfileId String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    propertyId String?
+    roomId String?
+    property     Property?     @relation(fields: [propertyId], references: [id])
+    room         Room?         @relation(fields: [roomId], references: [id])
+    
+}
+
+model Document {
+    id  String @id @default(uuid())
+    title   String  @db.VarChar(150)
+    type    documentType
+    url String  @db.VarChar(255)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+
+    propertyId  String?
+    roomId  String?
+    projectId   String?
+    property     Property?     @relation(fields: [propertyId], references: [id])
+    room         Room?         @relation(fields: [roomId], references: [id])
+    project      Project?      @relation(fields: [projectId], references: [id])
+
+}
+
+model Transmission {
+    id  String @id @default(uuid())
+    amount Decimal?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    propertyId  String
+    property     Property    @relation(fields: [propertyId], references: [id])
+
+    previousOwnerId String
+    newOwnerId  String
+    previousOwner   Profile @relation("previousOwner", fields: [previousOwnerId], references: [id])
+    newOwner    Profile @relation("newOwner", fields: [newOwnerId], references: [id])
+    
+}
+
+model project_has_room {
+    projectId   String
+    roomId      String
+    project     Project     @relation(fields: [projectId], references: [id])
+    room        Room        @relation(fields: [roomId], references: [id])
+
+    @@id([projectId, roomId])
+}
+
+enum profileRole {
+  PROFESSIONAL
+  INDIVIDUAL
+}
+
+enum houseType{
+    HOUSE
+    APPARTMENT
+}
+
+enum roomType {
+    BEDROOM
+    KITCHEN
+    LIVING_ROOM
+}
+
+enum projectStatus{
+    TO_DO
+    PENDING
+    DONE
+}
+
+enum taskStatus{
+    TO_DO
+    PENDING
+    DONE
+}
+
+enum documentType {
+    QUOTE
+    INVOICE
+    BLUEPRINT
+    PERMIT
+    CONTRACT
+    PHOTO
+    MODEL
+}
