@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma.js";
-import { hashPassword } from "../lib/hash.js";
+import { hashPassword, verifyPassword } from "../lib/hash.js";
 import jwt from "jsonwebtoken";
 import type { SignOptions } from "jsonwebtoken";
 
@@ -23,6 +23,16 @@ export const register = async (email: string, password: string) => {
     });
     return newUser;
   }
+};
+
+export const login = async (email: string, password: string) => {
+  const userExist = await prisma.user.findUnique({ where: { email } });
+
+  if (!userExist) throw new Error("Identifiants incorrects");
+  const passwordIsCorrect = await verifyPassword(password, userExist.password);
+  if (!passwordIsCorrect) throw new Error("Identifiants incorrects");
+  const { password: _, ...userWithoutPassword } = userExist;
+  return userWithoutPassword;
 };
 
 export const generateTokens = async (id: string) => {

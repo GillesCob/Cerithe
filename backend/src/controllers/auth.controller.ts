@@ -23,3 +23,11 @@ export const registerController = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Une erreur est survenue" });
   }
 };
+
+//J'identifie le verge HTTP, POST ici
+//j'ai une requ avec email et pwd
+//Je vérifie avec
+//Je vérifie si l'email est en BDD
+//Si oui je récupère le mdp hashé
+//je hash le mdp de la requête et je compare avec le mdp présent en BDD
+//Si ok alors on peut générer AT et RT de la même manière que pour le register
