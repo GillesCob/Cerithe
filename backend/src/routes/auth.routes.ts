@@ -3,7 +3,7 @@ import { registerSchema } from "../validators/auth.validator";
 import { registerController } from "../controllers/auth.controller";
 import { Router } from "express";
 
-const router = Router();
+const authRouter = Router();
 
-router.post("/register", validate(registerSchema), registerController);
-export default router;
+authRouter.post("/register", validate(registerSchema), registerController);
+export default authRouter;
