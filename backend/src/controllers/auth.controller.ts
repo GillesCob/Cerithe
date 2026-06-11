@@ -19,6 +19,7 @@ export const registerController = async (req: Request, res: Response) => {
     });
     return res.status(201).json({ user: newUser, accessToken: userTokens.accessToken });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: "Une erreur est survenue" });
   }
 };
