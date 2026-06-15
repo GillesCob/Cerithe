@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { register, generateTokens, login } from "../services/auth.service";
+import { register, generateTokens, login, userConnectedInfos } from "../services/auth.service";
 
 export const registerController = async (req: Request, res: Response) => {
   try {
@@ -28,6 +28,17 @@ export const loginController = async (req: Request, res: Response) => {
       secure: true,
     });
     return res.status(200).json({ user: loginUser, accessToken: userTokens.accessToken });
+  } catch (error) {
+    return res.status(500).json({ message: "Une erreur est survenue" });
+  }
+};
+
+export const meController = async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  if (!userId) return res.status(401).json({ message: "Une erreur est survenue" });
+  try {
+    const user = await userConnectedInfos(userId);
+    return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json({ message: "Une erreur est survenue" });
   }

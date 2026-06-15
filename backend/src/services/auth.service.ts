@@ -50,3 +50,10 @@ export const generateTokens = async (id: string) => {
 
   return { accessToken, refreshToken };
 };
+
+export const userConnectedInfos = async (id: string) => {
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new Error("User non trouvé");
+  const { password: _, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+};
