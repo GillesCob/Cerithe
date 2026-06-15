@@ -25,6 +25,6 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
     req.user = { userId: decoded.userId };
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Non autoirisé" });
+    return res.status(401).json({ message: "Non autorisé" });
   }
 };
