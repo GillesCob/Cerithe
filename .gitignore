@@ -141,3 +141,13 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+
+# Prisma
+backend/prisma/generated/
+
+# Env files
+backend/.env
+frontend/.env
+
+context.md
