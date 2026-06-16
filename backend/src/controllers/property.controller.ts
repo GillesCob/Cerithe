@@ -11,12 +11,15 @@ export const createPropertyController = async (req: Request, res: Response) => {
   const { name, address, houseType, surface, numberOfLevels } = req.body;
   const data = { name, address, houseType, surface, numberOfLevels };
 
-  const profileId = req.user?.userId; //FIXME : A changer par l'id du profile
+  // const profileId = req.user?.userId; //FIXME : A changer par l'id du profile
+  const profileId = "e2ae56c6-979e-46a4-8ceb-5984a465a547"; //hardcodé le temps que le CRUD profile soit en place
   if (!profileId) return res.status(500).json({ message: "Impossible de créer le bien" });
   try {
     const newProperty = await createProperty(data, profileId);
     return res.status(201).json(newProperty);
   } catch (error) {
+    console.error(error);
+
     return res.status(500).json({ message: "Impossible de créer le bien" });
   }
 };
