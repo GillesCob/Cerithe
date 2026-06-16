@@ -1,0 +1,24 @@
+info:
+  name: update
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: http://localhost:3000/api/properties/4843f1eb-5cec-4b4d-b1d8-afd1a25b6c11
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE1OTgwMjAsImV4cCI6MTc4MTU5ODkyMH0.yv4XapoGTNbeUt7put6kXLFIOLwXfnhMaeMaIYXbkRw
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Ma maison rénovée",
+        "surface": 150
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

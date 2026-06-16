@@ -35,9 +35,11 @@ export const readOnePropertyController = async (req: Request, res: Response) => 
 };
 
 export const readManyPropertiesController = async (req: Request, res: Response) => {
-  const userId = req.user?.userId as string;
+  // const profileId = req.user?.userId as string;
+  const profileId = "e2ae56c6-979e-46a4-8ceb-5984a465a547"; //hardcodé le temps que le CRUD profile soit en place
+
   try {
-    const myProperties = await allOwnerProperties(userId);
+    const myProperties = await allOwnerProperties(profileId);
     return res.status(200).json(myProperties);
   } catch (error) {
     return res.status(500).json({ message: "Biens non trouvés" });

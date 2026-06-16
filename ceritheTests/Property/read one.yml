@@ -1,0 +1,21 @@
+info:
+  name: read one
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:3000/api/properties/4843f1eb-5cec-4b4d-b1d8-afd1a25b6c11
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE1OTc4ODUsImV4cCI6MTc4MTU5ODc4NX0.VBqTwSFzbjjFAg7FKcgdT5tewEVYWBAqjeEBb7qbEPM
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
