@@ -15,6 +15,7 @@ export const createDocumentController = async (req: Request, res: Response) => {
     const newDbEntry = await createDocument(originalname, type, newDocument.path, propertyId);
     return res.status(201).json({ newDocument, newDbEntry });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: "Erreur lors de l'ajout du document" });
   }
 };
