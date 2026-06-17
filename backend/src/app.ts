@@ -13,5 +13,6 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/documents", documentRouter);
+app.use("/api/profiles", documentRouter);
 
 export default app;
