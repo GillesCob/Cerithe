@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { register, generateTokens, login, userConnectedInfos } from "../services/auth.service";
+import { createProfile } from "../services/profile.service";
+import type { profileRole } from "../../prisma/generated/enums";
 
 export const registerController = async (req: Request, res: Response) => {
   try {
@@ -11,6 +13,13 @@ export const registerController = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: true,
     });
+    const data = {
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      role: "INDIVIDUAL" as profileRole,
+    };
+    await createProfile(data, newUser.id);
     return res.status(201).json({ user: newUser, accessToken: userTokens.accessToken });
   } catch (error) {
     return res.status(500).json({ message: "Une erreur est survenue" });

@@ -19,9 +19,9 @@ model User {
 
 model Profile {
     id  String @id @default(uuid())
-    firstName   String  @db.VarChar(50)
-    lastName    String  @db.VarChar(50)
-    phoneNumber String     
+    firstName   String?  @db.VarChar(50)
+    lastName    String?  @db.VarChar(50)
+    phoneNumber String?     
     role    profileRole
 
 

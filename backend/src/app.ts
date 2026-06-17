@@ -4,8 +4,16 @@ import authRouter from "./routes/auth.routes";
 import propertyRouter from "./routes/property.routes";
 import documentRouter from "./routes/document.routes";
 import profileRouter from "./routes/profile.routes";
+import cors from "cors";
 
 const app: Application = express();
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
 
 // Middlewares
 app.use(express.json());
