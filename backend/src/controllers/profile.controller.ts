@@ -52,6 +52,7 @@ export const updateProfileController = async (req: Request, res: Response) => {
     const profileToUpdate = await updateProfile(idProfileToUpdate, data);
     return res.status(200).json(profileToUpdate);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: "Problème lors de la mise à jour du profil" });
   }
 };

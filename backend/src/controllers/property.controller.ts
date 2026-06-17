@@ -11,8 +11,7 @@ export const createPropertyController = async (req: Request, res: Response) => {
   const { name, address, houseType, surface, numberOfLevels } = req.body;
   const data = { name, address, houseType, surface, numberOfLevels };
 
-  // const profileId = req.user?.userId; //FIXME : A changer par l'id du profile
-  const profileId = "e2ae56c6-979e-46a4-8ceb-5984a465a547"; //hardcodé le temps que le CRUD profile soit en place
+  const profileId = req.user?.userId;
   if (!profileId) return res.status(500).json({ message: "Impossible de créer le bien" });
   try {
     const newProperty = await createProperty(data, profileId);
@@ -35,8 +34,7 @@ export const readOnePropertyController = async (req: Request, res: Response) => 
 };
 
 export const readManyPropertiesController = async (req: Request, res: Response) => {
-  // const profileId = req.user?.userId as string;
-  const profileId = "e2ae56c6-979e-46a4-8ceb-5984a465a547"; //hardcodé le temps que le CRUD profile soit en place
+  const profileId = req.user?.userId as string;
 
   try {
     const myProperties = await allOwnerProperties(profileId);
