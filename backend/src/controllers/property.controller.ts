@@ -6,14 +6,19 @@ import {
   updateProperty,
   deleteProperty,
 } from "../services/property.service";
+import { allUserProfiles } from "../services/profile.service";
 
 export const createPropertyController = async (req: Request, res: Response) => {
   const { name, address, houseType, surface, numberOfLevels } = req.body;
   const data = { name, address, houseType, surface, numberOfLevels };
 
-  const profileId = req.user?.userId;
-  if (!profileId) return res.status(500).json({ message: "Impossible de créer le bien" });
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+
   try {
+    const profiles = await allUserProfiles(userId);
+    const profileId = profiles[0]?.id;
+    if (!profileId) return res.status(500).json({ message: "Impossible de créer le bien" });
     const newProperty = await createProperty(data, profileId);
     return res.status(201).json(newProperty);
   } catch (error) {
@@ -34,9 +39,13 @@ export const readOnePropertyController = async (req: Request, res: Response) => 
 };
 
 export const readManyPropertiesController = async (req: Request, res: Response) => {
-  const profileId = req.user?.userId as string;
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
 
   try {
+    const profiles = await allUserProfiles(userId);
+    const profileId = profiles[0]?.id;
+    if (!profileId) return res.status(500).json({ message: "Biens non trouvés" });
     const myProperties = await allOwnerProperties(profileId);
     return res.status(200).json(myProperties);
   } catch (error) {
