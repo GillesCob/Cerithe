@@ -1,7 +1,12 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useProperties } from "../hooks/useProperty";
+import type { IProperty } from "../types/property";
 
 const DashboardPage = () => {
+  const { properties, isPending, isError } = useProperties();
+  if (isPending) return <div>Chargement...</div>;
+  if (isError) return <div>Erreur lors du chargement des biens</div>;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
@@ -20,7 +25,9 @@ const DashboardPage = () => {
       {/* Contenu */}
       <main className="max-w-4xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Mes biens</h2>
-
+        {properties.map((p: IProperty) => (
+          <div key={p.id}>{p.name}</div>
+        ))}
         {/* État vide */}
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
           <p className="text-gray-400 text-sm mb-4">Vous n'avez pas encore de bien enregistré.</p>
