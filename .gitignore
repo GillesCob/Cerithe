@@ -150,4 +150,5 @@ backend/prisma/generated/
 backend/.env
 frontend/.env
 
-context.md
+#Tests Bruno
+ceritheTests/Document/

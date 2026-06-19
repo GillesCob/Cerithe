@@ -1,0 +1,21 @@
+info:
+  name: read one
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:3000/api/profiles/317899e5-f986-4121-a628-f1428d0314fc
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE2NzcwMjUsImV4cCI6MTc4MTY3NzkyNX0.ITZx1IIfFrXe7hTgWlaXLN3WhcklAfL-j9tgeVpOWL4
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

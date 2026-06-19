@@ -8,7 +8,7 @@ http:
   url: http://localhost:3000/api/properties
   headers:
     - name: Authorization
-      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE1OTY4MjUsImV4cCI6MTc4MTU5NzcyNX0.JqXwWz_D6EQEgATnzBu1ikUbU1QqIjmrJa8mVxJjd1I
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE2Nzc5ODgsImV4cCI6MTc4MTY3ODg4OH0.rGa-T1v5gJym22ppAKdLEPyiNZhoU2v_DdctIzGHhno
   body:
     type: json
     data: ""

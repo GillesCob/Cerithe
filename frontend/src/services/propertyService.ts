@@ -1,13 +1,13 @@
 import apiClient from "../lib/axios";
 
-export const addProperty = async (name: string, address: string, houseType: string, surface: number, numberOfLevels: number) => {
-  const response = await apiClient.post("/api/property", {
-    name,
-    address,
-    houseType,
-    surface,
-    numberOfLevels,
-  });
+export const addProperty = async (data: {
+  name: string;
+  address: string;
+  houseType: string;
+  surface: number;
+  numberOfLevels: number;
+}) => {
+  const response = await apiClient.post("/api/properties", data);
   return response.data;
 };
 
@@ -29,7 +29,7 @@ export const updateProperty = async (
   surface?: number,
   numberOfLevels?: number,
 ) => {
-  const response = await apiClient.put(`/api/property/${id}`, {
+  const response = await apiClient.put(`/api/properties/${id}`, {
     name,
     address,
     houseType,
@@ -40,6 +40,6 @@ export const updateProperty = async (
 };
 
 export const deleteProperty = async (id: string) => {
-  const response = await apiClient.delete(`/api/property/${id}`);
+  const response = await apiClient.delete(`/api/properties/${id}`);
   return response.data;
 };

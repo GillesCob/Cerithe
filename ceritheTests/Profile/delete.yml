@@ -1,0 +1,20 @@
+info:
+  name: delete
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: http://localhost:3000/api/profiles/317899e5-f986-4121-a628-f1428d0314fc
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE2NzcxNTgsImV4cCI6MTc4MTY3ODA1OH0.j9Oij-K8-9skFUrk2sHuoXL4JzrevHxMDOtwKNtWDco
+  body:
+    type: json
+    data: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

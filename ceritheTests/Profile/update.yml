@@ -1,0 +1,24 @@
+info:
+  name: update
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: http://localhost:3000/api/profiles/ddf1abbc-e1b7-4afc-ad53-e3ba1074dbda
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMmFlNTZjNi05NzllLTQ2YTQtOGNlYi01OTg0YTQ2NWE1NDYiLCJpYXQiOjE3ODE2NzcyOTgsImV4cCI6MTc4MTY3ODE5OH0.RpMUd_2Sli-Rt1If7KoouKsaWeS1oG6XpZ-Dfr0RPQI
+  body:
+    type: json
+    data: |-
+      {
+        "firstName": "Gilles2",
+        "phoneNumber": "0679629461"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

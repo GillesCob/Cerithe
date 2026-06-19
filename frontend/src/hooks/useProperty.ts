@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAllProperties } from "../services/propertyService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addProperty, getAllProperties } from "../services/propertyService";
 
-export const useProperties = () => {
+export const useGetProperties = () => {
   const {
     data: properties,
     isPending,
@@ -11,4 +11,14 @@ export const useProperties = () => {
     queryFn: getAllProperties,
   });
   return { properties, isPending, isError };
+};
+
+export const useCreateProperty = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addProperty,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+    },
+  });
 };
