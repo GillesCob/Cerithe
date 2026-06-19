@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useGetProperties } from "../hooks/useProperty";
 import type { IProperty } from "../types/property";
+import { PropertyCard } from "@/components/property/PropertyCard";
 
 const DashboardPage = () => {
   const { properties, isPending, isError } = useGetProperties();
@@ -25,7 +26,7 @@ const DashboardPage = () => {
       <main className="max-w-4xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Mes biens</h2>
         {properties && properties.length > 0 ? (
-          properties.map((p: IProperty) => <div key={p.id}>{p.name}</div>)
+          properties.map((p: IProperty) => <PropertyCard key={p.id} property={p} />)
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
             <p className="text-gray-400 text-sm mb-4">Vous n'avez pas encore de bien enregistré.</p>
