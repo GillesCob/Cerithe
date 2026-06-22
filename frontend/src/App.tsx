@@ -4,6 +4,7 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import PropertyListPage from "./pages/PropertyListPage";
 import PropertyFormPage from "./pages/PropertyFormPage";
+import PropertyPage from "./pages/PropertyPage";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/property-list" element={<PropertyListPage />} />
         <Route path="/property-form" element={<PropertyFormPage />} />
+        <Route path="/property/:id" element={<PropertyPage />} />
       </Routes>
     </BrowserRouter>
   );
