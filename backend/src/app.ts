@@ -5,6 +5,7 @@ import propertyRouter from "./routes/property.routes";
 import documentRouter from "./routes/document.routes";
 import profileRouter from "./routes/profile.routes";
 import cors from "cors";
+import transmissionRouter from "./routes/transmission.routes";
 
 const app: Application = express();
 
@@ -23,5 +24,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/documents", documentRouter);
 app.use("/api/profiles", profileRouter);
+app.use("/api/transmission", transmissionRouter);
 
 export default app;

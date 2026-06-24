@@ -1,23 +1,19 @@
 info:
-  name: create
+  name: Transmission
   type: http
   seq: 1
 
 http:
   method: POST
-  url: http://localhost:3000/api/properties
+  url: http://localhost:3000/api/transmission/d6a5d3a9-dba1-431f-aa77-e2664abd4966
   headers:
-    - name: Authorization
+    - name: authorization
       value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0Nzg0ZWQ0MS1hZjk5LTQ5YTctOTM2ZC03YWVjYTE0Mjc3NmEiLCJpYXQiOjE3ODIzMDY1ODcsImV4cCI6MTc4MjMwNzQ4N30.b3se6FwXE5qGTE0s2_Q87jPyPjrGvSbp4Q14V0ogsYw
   body:
     type: json
     data: |-
       {
-        "name": "Ma maison test",
-        "address": "12 rue des Fleurs, Bordeaux",
-        "houseType": "HOUSE",
-        "surface": 120,
-        "numberOfLevels": 2
+        "recipientEmail": "test@test.com"
       }
   auth: inherit
 

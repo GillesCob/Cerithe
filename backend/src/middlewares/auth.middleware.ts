@@ -1,12 +1,3 @@
-//Je récupère la requête et j'extrait l'AT du header
-// Si pas d'AT, je renvoi une 401 sinon je continue
-// Je vérifie si le token est expiré ou non
-// => Si expiré, 401 sinon je continue
-//je récupère le secret du .env, lecture possible grâce à dotenv/config importé dans server.ts
-//J'utilise jsonwebtoken et jwt.verify() qui va créer une nouvelle signature avec le header/payload de l'AT de la requête et le secret issus du .env
-//Si signatures = alors ça passe
-// J'ajoute les infos issues du payload (donc les infos du user) dans la requête avec req.user = decoded
-
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
