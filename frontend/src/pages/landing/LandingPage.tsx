@@ -24,7 +24,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-cerithe-cream">
-      {/* 1 — Hero */}
+      {/* 1 - Hero */}
       <section className="bg-cerithe-navy flex flex-col items-center justify-center min-h-[60vh] px-6 py-20 text-center">
         <img src="/logo-cerithe.png" alt="Cerithe" className="max-h-[400px] w-auto mb-10 object-contain" />
         <h1 className="font-display text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight max-w-2xl">
@@ -32,7 +32,7 @@ export default function LandingPage() {
         </h1>
       </section>
 
-      {/* 2 — Histoire du nom */}
+      {/* 2 - Histoire du nom */}
       <section className="relative overflow-hidden bg-cerithe-cream px-6 py-24">
         <ShellDecoration />
         <div className="relative max-w-2xl mx-auto">
@@ -47,7 +47,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3 — Problème */}
+      {/* 3 - Problème */}
       <section className="bg-white px-6 py-20">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-cerithe-navy mb-6">Le problème</h2>
@@ -59,7 +59,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4 — Solution */}
+      {/* 4 - Solution */}
       <section className="bg-cerithe-cream px-6 py-20">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-cerithe-navy mb-10">La solution</h2>
@@ -77,7 +77,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5 & 6 — Statut + Countdown */}
+      {/* 5 & 6 - Statut + Countdown */}
       <section className="bg-cerithe-navy px-6 py-24">
         <div className="max-w-2xl mx-auto text-center">
           <Badge className="mb-6 bg-cerithe-coral/15 text-cerithe-coral border-cerithe-coral/30 hover:bg-cerithe-coral/15">
@@ -89,7 +89,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7 — Stack technique */}
+      {/* 7 - Stack technique */}
       <section className="bg-white px-6 py-20">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-cerithe-navy mb-10">Stack technique</h2>
@@ -97,7 +97,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 8 — Liens */}
+      {/* 8 - Liens */}
       <section className="bg-cerithe-cream px-6 py-20">
         <div className="max-w-xl mx-auto text-center">
           <h2 className="font-display text-2xl font-semibold text-cerithe-navy mb-3">Suivre le projet</h2>
@@ -121,7 +121,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 9 — Footer */}
+      {/* 9 - Footer */}
       <footer className="bg-cerithe-navy px-6 py-8 text-center">
         <p className="text-white/40 text-sm">
           Construit par{" "}
@@ -133,7 +133,7 @@ export default function LandingPage() {
           >
             Gilles Cobigo
           </a>{" "}
-          — gillescobigo.com
+          - gillescobigo.com
         </p>
       </footer>
     </div>
