@@ -1,4 +1,3 @@
-console.log("APP.TSX LOADED");
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landing/LandingPage";
 import LoginPage from "./pages/LoginPage";
