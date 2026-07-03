@@ -1,19 +1,32 @@
-import { includes, property } from "zod";
+import { email, includes, property } from "zod";
 import { houseType, type transmissionStatus } from "../../prisma/generated/enums";
 import prisma from "../lib/prisma";
 import type { Profile, Property } from "../../prisma/generated/client";
 
 export const createTransmissionToken = async (recipientEmail: string, ownerId: string, propertyId: string) => {
+  const ownerProfile = await prisma.profile.findUnique({
+    where: { id: ownerId },
+    select: { user: { select: { email: true } } },
+  });
+  const userEmail = ownerProfile?.user.email;
+
+  if (userEmail === recipientEmail)
+    throw new Error("L'email du destinataire est le même que le propriétaire actuel du bien.");
+
   const property = await prisma.property.findUnique({ where: { id: propertyId } });
   if (!property) throw new Error("Bien introuvable");
   if (!(property.profileId === ownerId)) throw new Error("Non autorisé");
 
-  const existingToken = await prisma.transmissionToken.findFirst({ where: { propertyId } });
+  const latestTransmission = await prisma.transmissionToken.findFirst({
+    where: { propertyId },
+    orderBy: { createdAt: "desc" },
+  });
 
-  if (existingToken && ["accepted", "confirmed"].includes(existingToken.status)) throw new Error("Bien déjà transmis");
-  if (existingToken && ["pending", "clicked"].includes(existingToken.status)) {
-    const data = { status: "cancelled" as transmissionStatus };
-    await prisma.transmissionToken.update({ where: { id: existingToken.id }, data });
+  if (latestTransmission && ["pending", "clicked"].includes(latestTransmission.status)) {
+    throw new Error("Une transmission est déjà en cours pour ce bien. Contactez le destinataire ou annulez-la avant d'en créer une nouvelle.");
+  }
+  if (latestTransmission && latestTransmission.status === "accepted") {
+    throw new Error("Une transmission est en attente de votre confirmation finale. Confirmez ou annulez-la avant d'en créer une nouvelle.");
   }
   const token = crypto.randomUUID();
   const data = {
