@@ -36,6 +36,9 @@ model Profile {
     transmissionAsSeller    Transmission[] @relation("previousOwner")
     transmissionAsBuyer Transmission[] @relation("newOwner")
 
+    transmissionToken TransmissionToken[]
+
+
 }
 
 model Property {
@@ -156,10 +159,13 @@ model TransmissionToken {
   status         transmissionStatus @default(pending)
   clickedAt      DateTime?
   expiresAt      DateTime?
+  acceptedAt     DateTime?
   cancelledAt    DateTime?
   createdAt      DateTime           @default(now())
   propertyId     String
   property       Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  recipientProfileId     String?
+  recipientProfile       Profile?           @relation(fields: [recipientProfileId], references: [id], onDelete: Cascade)
 }
 
 model project_has_room {
