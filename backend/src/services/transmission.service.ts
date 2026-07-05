@@ -192,3 +192,44 @@ export const cancelTransmissionToken = async (token: string, userId: string) => 
     data: { status: "cancelled", cancelledAt },
   });
 };
+
+export const confirmTransmissionToken = async (token: string, userId: string) => {
+  const transmissionToken = await prisma.transmissionToken.findUnique({ where: { token } });
+  if (!transmissionToken) throw new Error("Pas de transmission en cours");
+
+  const property = await prisma.property.findUnique({
+    where: { id: transmissionToken.propertyId },
+    include: { profile: true },
+  });
+  if (!property) throw new Error("Bien introuvable");
+  if (property.profile.userId !== userId) throw new Error("Non autorisé");
+  if (transmissionToken.status !== "accepted") throw new Error("Transmission non disponible pour confirmation.");
+
+  const recipientProfileId = transmissionToken.recipientProfileId;
+  if (!recipientProfileId) throw new Error("Impossible de déterminer le profil du destinataire.");
+
+  const recipientProfile = await prisma.profile.findUnique({ where: { id: recipientProfileId } });
+  if (!recipientProfile) throw new Error("Le profil du destinataire n'existe plus. Contactez votre acheteur.");
+
+  const previousOwnerId = property.profileId;
+
+  const [, , confirmedTransmissionToken] = await prisma.$transaction([
+    prisma.property.update({
+      where: { id: property.id },
+      data: { profileId: recipientProfileId },
+    }),
+    prisma.transmission.create({
+      data: {
+        propertyId: property.id,
+        previousOwnerId,
+        newOwnerId: recipientProfileId,
+      },
+    }),
+    prisma.transmissionToken.update({
+      where: { token },
+      data: { status: "confirmed" },
+    }),
+  ]);
+
+  return confirmedTransmissionToken;
+};

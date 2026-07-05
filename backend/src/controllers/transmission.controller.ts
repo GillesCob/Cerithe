@@ -4,6 +4,7 @@ import {
   getTransmissionTokenInfos,
   acceptTransmissionToken,
   cancelTransmissionToken,
+  confirmTransmissionToken,
 } from "../services/transmission.service";
 import { allUserProfiles } from "../services/profile.service";
 
@@ -62,7 +63,18 @@ export const cancelTransmissionController = async (req: Request, res: Response) 
     return res.status(200).json(transmissionToken);
   } catch (error) {
     console.error(error);
-    // TODO: cf remarque plus haut, message générique en attendant un typage d'erreur.
     return res.status(500).json({ message: "Impossible d'annuler la transmission" });
+  }
+};
+
+export const confirmTransmissionController = async (req: Request, res: Response) => {
+  const token = req.params.token as string;
+  const userId = req.user!.userId;
+  try {
+    const transmissionToken = await confirmTransmissionToken(token, userId);
+    return res.status(200).json(transmissionToken);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Impossible de confirmer la transmission" });
   }
 };
