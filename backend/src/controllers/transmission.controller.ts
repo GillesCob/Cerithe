@@ -1,5 +1,10 @@
 import type { Request, Response } from "express";
-import { createTransmissionToken, getTransmissionTokenInfos, acceptTransmissionToken } from "../services/transmission.service";
+import {
+  createTransmissionToken,
+  getTransmissionTokenInfos,
+  acceptTransmissionToken,
+  cancelTransmissionToken,
+} from "../services/transmission.service";
 import { allUserProfiles } from "../services/profile.service";
 
 export const createTransmissionUrl = async (req: Request, res: Response) => {
@@ -46,5 +51,18 @@ export const acceptTransmissionController = async (req: Request, res: Response) 
     console.error(error);
     // TODO: cf remarque plus haut, message générique en attendant un typage d'erreur.
     return res.status(500).json({ message: "Impossible d'accepter la transmission" });
+  }
+};
+
+export const cancelTransmissionController = async (req: Request, res: Response) => {
+  const token = req.params.token as string;
+  const userId = req.user!.userId;
+  try {
+    const transmissionToken = await cancelTransmissionToken(token, userId);
+    return res.status(200).json(transmissionToken);
+  } catch (error) {
+    console.error(error);
+    // TODO: cf remarque plus haut, message générique en attendant un typage d'erreur.
+    return res.status(500).json({ message: "Impossible d'annuler la transmission" });
   }
 };

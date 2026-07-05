@@ -36,8 +36,7 @@ export const createTransmissionToken = async (recipientEmail: string, ownerId: s
     where: { email: recipientEmail },
     include: { profile: true },
   });
-  const recipientProfileId =
-    recipientUser && recipientUser.profile.length === 1 ? recipientUser.profile[0]!.id : null;
+  const recipientProfileId = recipientUser && recipientUser.profile.length === 1 ? recipientUser.profile[0]!.id : null;
 
   const token = crypto.randomUUID();
   const data = {
@@ -51,7 +50,11 @@ export const createTransmissionToken = async (recipientEmail: string, ownerId: s
   return transmissionToken;
 };
 
-export const transmissionTokenUserPropertyInfos = (property: Property, profile: Profile, recipientProfileId: string | null) => {
+export const transmissionTokenUserPropertyInfos = (
+  property: Property,
+  profile: Profile,
+  recipientProfileId: string | null,
+) => {
   const { name, address, houseType, surface } = property;
   const { firstName, lastName } = profile;
   const returnDatas = {
@@ -75,7 +78,9 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
 
   const requestingUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
   if (requestingUser?.email !== transmissionToken.recipientEmail)
-    throw new Error("Vous n'êtes pas le destinataire de la transmission. Contactez votre vendeur si vous pensez à une erreur.");
+    throw new Error(
+      "Vous n'êtes pas le destinataire de la transmission. Contactez votre vendeur si vous pensez à une erreur.",
+    );
 
   // Je vérifie le status et je donne des return en fonction
 
@@ -150,7 +155,9 @@ export const acceptTransmissionToken = async (token: string, userId: string) => 
 
   const requestingUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
   if (requestingUser?.email !== transmissionToken.recipientEmail)
-    throw new Error("Vous n'êtes pas le destinataire de la transmission. Contactez votre vendeur si vous pensez à une erreur.");
+    throw new Error(
+      "Vous n'êtes pas le destinataire de la transmission. Contactez votre vendeur si vous pensez à une erreur.",
+    );
 
   if (transmissionToken.status !== "clicked") throw new Error("Transmission non disponible pour acceptation.");
 
@@ -162,5 +169,26 @@ export const acceptTransmissionToken = async (token: string, userId: string) => 
   return prisma.transmissionToken.update({
     where: { token },
     data: { status: "accepted", acceptedAt, expiresAt },
+  });
+};
+
+export const cancelTransmissionToken = async (token: string, userId: string) => {
+  const transmissionToken = await prisma.transmissionToken.findUnique({ where: { token } });
+  if (!transmissionToken) throw new Error("Pas de transmission en cours");
+
+  const property = await prisma.property.findUnique({
+    where: { id: transmissionToken.propertyId },
+    include: { profile: true },
+  });
+  if (!property) throw new Error("Bien introuvable");
+  if (property.profile.userId !== userId) throw new Error("Non autorisé");
+
+  if (!["pending", "clicked", "accepted"].includes(transmissionToken.status))
+    throw new Error("Transmission non disponible pour annulation.");
+
+  const cancelledAt = new Date();
+  return prisma.transmissionToken.update({
+    where: { token },
+    data: { status: "cancelled", cancelledAt },
   });
 };

@@ -6,6 +6,7 @@ import {
   createTransmissionUrl,
   readOneTransmissionController,
   acceptTransmissionController,
+  cancelTransmissionController,
 } from "../controllers/transmission.controller";
 
 const transmissionRouter = Router();
@@ -13,5 +14,6 @@ const transmissionRouter = Router();
 transmissionRouter.post("/:propertyId", verifyAccessToken, validate(transmissionchema), createTransmissionUrl);
 transmissionRouter.get("/:token", verifyAccessToken, readOneTransmissionController);
 transmissionRouter.post("/:token/accept", verifyAccessToken, acceptTransmissionController);
+transmissionRouter.post("/:token/cancel", verifyAccessToken, cancelTransmissionController);
 
 export default transmissionRouter;
