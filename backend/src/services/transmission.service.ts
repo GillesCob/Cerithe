@@ -149,6 +149,30 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
   }
 };
 
+export const selectRecipientProfile = async (token: string, userId: string, profileId: string) => {
+  const transmissionToken = await prisma.transmissionToken.findUnique({ where: { token } });
+  if (!transmissionToken) throw new Error("Pas de transmission en cours");
+
+  const requestingUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+  if (requestingUser?.email !== transmissionToken.recipientEmail)
+    throw new Error(
+      "Vous n'êtes pas le destinataire de la transmission. Contactez votre vendeur si vous pensez à une erreur.",
+    );
+
+  if (transmissionToken.status !== "clicked")
+    throw new Error("Sélection de profil non disponible pour cette transmission.");
+
+  const profile = await prisma.profile.findUnique({ where: { id: profileId } });
+  if (!profile || profile.userId !== userId) throw new Error("Non autorisé");
+
+  await prisma.transmissionToken.update({
+    where: { token },
+    data: { recipientProfileId: profileId },
+  });
+
+  return getTransmissionTokenInfos(token, userId);
+};
+
 export const acceptTransmissionToken = async (token: string, userId: string) => {
   const transmissionToken = await prisma.transmissionToken.findUnique({ where: { token } });
   if (!transmissionToken) throw new Error("Pas de transmission en cours");
@@ -161,7 +185,7 @@ export const acceptTransmissionToken = async (token: string, userId: string) => 
 
   if (transmissionToken.status !== "clicked") throw new Error("Transmission non disponible pour acceptation.");
 
-  // TODO: cas recipientProfileId null (destinataire avec plusieurs profils) non géré, la modale de choix reste à faire.
+  // Cas destinataire multi-profils : recipientProfileId reste null tant que selectRecipientProfile n'a pas été appelé.
   if (!transmissionToken.recipientProfileId) throw new Error("Impossible de déterminer le profil du destinataire.");
 
   const acceptedAt = new Date();

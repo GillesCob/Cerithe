@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import {
   createTransmissionToken,
   getTransmissionTokenInfos,
+  selectRecipientProfile,
   acceptTransmissionToken,
   cancelTransmissionToken,
   confirmTransmissionToken,
@@ -39,6 +40,19 @@ export const readOneTransmissionController = async (req: Request, res: Response)
     // TODO: messages génériques pour toutes les erreurs de ce controller, à préciser pour l'utilisateur
     // (ex: différencier "pas le bon destinataire" d'une vraie erreur serveur) une fois un typage d'erreur en place.
     return res.status(500).json({ message: "Transmission introuvable" });
+  }
+};
+
+export const selectRecipientProfileController = async (req: Request, res: Response) => {
+  const token = req.params.token as string;
+  const userId = req.user!.userId;
+  const profileId = req.body.profileId;
+  try {
+    const transmissionInfos = await selectRecipientProfile(token, userId, profileId);
+    return res.status(200).json(transmissionInfos);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Impossible de sélectionner ce profil" });
   }
 };
 
