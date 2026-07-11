@@ -14,3 +14,8 @@ export const me = async () => {
   const response = await apiClient.get("/api/auth/me", {});
   return response.data;
 };
+
+export const refreshAccessToken = async () => {
+  const response = await apiClient.post("/api/auth/refresh");
+  return response.data;
+};

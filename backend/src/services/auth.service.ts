@@ -51,6 +51,12 @@ export const generateTokens = async (id: string) => {
   return { accessToken, refreshToken };
 };
 
+export const refreshAccessToken = async (refreshToken: string) => {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET!;
+  const decoded = jwt.verify(refreshToken, refreshSecret) as { userId: string };
+  return generateTokens(decoded.userId);
+};
+
 export const userConnectedInfos = async (id: string) => {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) throw new Error("User non trouvé");

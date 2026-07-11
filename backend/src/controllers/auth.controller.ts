@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { register, generateTokens, login, userConnectedInfos } from "../services/auth.service";
+import { register, generateTokens, login, refreshAccessToken, userConnectedInfos } from "../services/auth.service";
 import { createProfile } from "../services/profile.service";
 import type { profileRole } from "../../prisma/generated/enums";
 
@@ -40,6 +40,21 @@ export const loginController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Une erreur est survenue" });
+  }
+};
+
+export const refreshController = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.status(401).json({ message: "Non autorisé" });
+  try {
+    const userTokens = await refreshAccessToken(refreshToken);
+    res.cookie("refreshToken", userTokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return res.status(200).json({ accessToken: userTokens.accessToken });
+  } catch (error) {
+    return res.status(401).json({ message: "Non autorisé" });
   }
 };
 

@@ -5,6 +5,7 @@ import propertyRouter from "./routes/property.routes";
 import documentRouter from "./routes/document.routes";
 import profileRouter from "./routes/profile.routes";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import transmissionRouter from "./routes/transmission.routes";
 
 const app: Application = express();
@@ -18,12 +19,13 @@ app.use(
 
 // Middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 // Router
 app.use("/api/auth", authRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/documents", documentRouter);
 app.use("/api/profiles", profileRouter);
-app.use("/api/transmission", transmissionRouter);
+app.use("/api/transmissions", transmissionRouter);
 
 export default app;

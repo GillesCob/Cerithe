@@ -6,8 +6,13 @@ import DashboardPage from "./pages/DashboardPage";
 import PropertyListPage from "./pages/PropertyListPage";
 import PropertyFormPage from "./pages/PropertyFormPage";
 import PropertyPage from "./pages/PropertyPage";
+import TransmissionPage from "./pages/TransmissionPage";
+import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
 
 export default function App() {
+  const { isReady } = useAuthBootstrap();
+  if (!isReady) return <div className="p-8">Chargement...</div>;
+
   return (
     <BrowserRouter>
       <Routes>
@@ -18,6 +23,7 @@ export default function App() {
         <Route path="/property-list" element={<PropertyListPage />} />
         <Route path="/property-form" element={<PropertyFormPage />} />
         <Route path="/property/:id" element={<PropertyPage />} />
+        <Route path="/transmission/:token" element={<TransmissionPage />} />
       </Routes>
     </BrowserRouter>
   );
