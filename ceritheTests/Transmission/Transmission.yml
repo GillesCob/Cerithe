@@ -5,10 +5,10 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/api/transmission/d6a5d3a9-dba1-431f-aa77-e2664abd4966
+  url: http://localhost:3000/api/transmissions/d6a5d3a9-dba1-431f-aa77-e2664abd4966
   headers:
     - name: authorization
-      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0Nzg0ZWQ0MS1hZjk5LTQ5YTctOTM2ZC03YWVjYTE0Mjc3NmEiLCJpYXQiOjE3ODIzMDY1ODcsImV4cCI6MTc4MjMwNzQ4N30.b3se6FwXE5qGTE0s2_Q87jPyPjrGvSbp4Q14V0ogsYw
+      value: Bearer {{accessToken}}
   body:
     type: json
     data: |-
@@ -16,6 +16,11 @@ http:
         "recipientEmail": "test@test.com"
       }
   auth: inherit
+  vars:
+    res:
+      - name: transmissionToken
+        value: res.body.split('/').pop()
+        enabled: true
 
 settings:
   encodeUrl: true

@@ -1,0 +1,11 @@
+variables:
+  - name: accessToken
+    value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0MWI5YTc4OC05MzkyLTRmZTctODBiZi0wMWFiM2FmMGJiODEiLCJpYXQiOjE3ODM3OTUwMTAsImV4cCI6MTc4Mzc5NTkxMH0.4dTmxUkjvA9yHE67DQ2SZm5n1E_SybwOsb6K4dqb8SQ"
+    type: text
+    enabled: true
+    secret: false
+  - name: transmissionToken
+    value: ""
+    type: text
+    enabled: true
+    secret: false
