@@ -3,6 +3,7 @@ import { useGetPropertyById } from "../hooks/useProperty";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import UploadDocumentForm from "@/components/document/UploadDocumentForm";
+import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
 import { useGetDocuments } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
 
@@ -10,6 +11,7 @@ const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
   const { property, isPending, isError } = useGetPropertyById(id!);
   const [isUploading, setIsUploading] = useState(false);
+  const [isTransmitting, setIsTransmitting] = useState(false);
   const { documents } = useGetDocuments(id!);
 
   if (isPending) return <div className="p-8">Chargement...</div>;
@@ -24,7 +26,16 @@ const PropertyPage = () => {
           Retour
         </Link>
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{property.name}</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold text-gray-900">{property.name}</h1>
+          <button
+            className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            onClick={() => setIsTransmitting(true)}
+          >
+            Transmettre
+          </button>
+        </div>
+        {isTransmitting && <CreateTransmissionModal propertyId={id!} onClose={() => setIsTransmitting(false)} />}
 
         <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-10">
           <span>{property.address}</span>

@@ -23,13 +23,19 @@ export const createTransmissionToken = async (recipientEmail: string, ownerId: s
   });
 
   if (latestTransmission && ["pending", "clicked"].includes(latestTransmission.status)) {
-    throw new Error(
-      "Une transmission est déjà en cours pour ce bien. Contactez le destinataire ou annulez-la avant d'en créer une nouvelle.",
+    throw Object.assign(
+      new Error(
+        "Une transmission est déjà en cours pour ce bien. Contactez le destinataire ou annulez-la avant d'en créer une nouvelle.",
+      ),
+      { transmissionToken: latestTransmission.token },
     );
   }
   if (latestTransmission && latestTransmission.status === "accepted") {
-    throw new Error(
-      "Une transmission est en attente de votre confirmation finale. Confirmez ou annulez-la avant d'en créer une nouvelle.",
+    throw Object.assign(
+      new Error(
+        "Une transmission est en attente de votre confirmation finale. Confirmez ou annulez-la avant d'en créer une nouvelle.",
+      ),
+      { transmissionToken: latestTransmission.token },
     );
   }
   const recipientUser = await prisma.user.findUnique({
@@ -54,6 +60,7 @@ export const transmissionTokenUserPropertyInfos = (
   property: Property,
   profile: Profile,
   recipientProfileId: string | null,
+  status: transmissionStatus,
 ) => {
   const { name, address, houseType, surface } = property;
   const { firstName, lastName } = profile;
@@ -61,6 +68,7 @@ export const transmissionTokenUserPropertyInfos = (
     property: { name, address, houseType, surface },
     owner: { firstName, lastName },
     recipientKnown: recipientProfileId !== null,
+    status,
   };
   return returnDatas;
 };
@@ -97,6 +105,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
       transmissionToken.property,
       transmissionToken.property.profile,
       transmissionToken.recipientProfileId,
+      status,
     );
   }
 
@@ -112,6 +121,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
       transmissionToken.property,
       transmissionToken.property.profile,
       transmissionToken.recipientProfileId,
+      transmissionToken.status,
     );
   }
 
@@ -121,6 +131,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
       transmissionToken.property,
       transmissionToken.property.profile,
       transmissionToken.recipientProfileId,
+      transmissionToken.status,
     );
   }
   // confirmed
@@ -129,6 +140,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
       transmissionToken.property,
       transmissionToken.property.profile,
       transmissionToken.recipientProfileId,
+      transmissionToken.status,
     );
   }
   // cancelled
@@ -137,6 +149,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
       transmissionToken.property,
       transmissionToken.property.profile,
       transmissionToken.recipientProfileId,
+      transmissionToken.status,
     );
   }
   // expired
@@ -145,6 +158,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
       transmissionToken.property,
       transmissionToken.property.profile,
       transmissionToken.recipientProfileId,
+      transmissionToken.status,
     );
   }
 };
@@ -205,7 +219,11 @@ export const cancelTransmissionToken = async (token: string, userId: string) => 
     include: { profile: true },
   });
   if (!property) throw new Error("Bien introuvable");
-  if (property.profile.userId !== userId) throw new Error("Non autorisé");
+
+  const requestingUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+  const isOwner = property.profile.userId === userId;
+  const isRecipient = requestingUser?.email === transmissionToken.recipientEmail;
+  if (!isOwner && !isRecipient) throw new Error("Non autorisé");
 
   if (!["pending", "clicked", "accepted"].includes(transmissionToken.status))
     throw new Error("Transmission non disponible pour annulation.");

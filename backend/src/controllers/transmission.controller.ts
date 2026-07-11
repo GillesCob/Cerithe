@@ -25,7 +25,12 @@ export const createTransmissionUrl = async (req: Request, res: Response) => {
     return res.status(201).json(url);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Erreur lors de la transmisison du bien" });
+    const message = error instanceof Error ? error.message : "Erreur lors de la transmission du bien";
+    const conflictToken = (error as { transmissionToken?: string }).transmissionToken;
+    if (conflictToken) {
+      return res.status(409).json({ message, transmissionToken: conflictToken });
+    }
+    return res.status(500).json({ message });
   }
 };
 
@@ -64,8 +69,8 @@ export const acceptTransmissionController = async (req: Request, res: Response) 
     return res.status(200).json(transmissionToken);
   } catch (error) {
     console.error(error);
-    // TODO: cf remarque plus haut, message générique en attendant un typage d'erreur.
-    return res.status(500).json({ message: "Impossible d'accepter la transmission" });
+    const message = error instanceof Error ? error.message : "Impossible d'accepter la transmission";
+    return res.status(500).json({ message });
   }
 };
 
@@ -77,7 +82,8 @@ export const cancelTransmissionController = async (req: Request, res: Response) 
     return res.status(200).json(transmissionToken);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Impossible d'annuler la transmission" });
+    const message = error instanceof Error ? error.message : "Impossible d'annuler la transmission";
+    return res.status(500).json({ message });
   }
 };
 
