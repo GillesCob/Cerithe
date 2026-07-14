@@ -1,5 +1,13 @@
 import type { Request, Response } from "express";
-import { register, generateTokens, login, refreshAccessToken, userConnectedInfos } from "../services/auth.service";
+import {
+  register,
+  generateTokens,
+  login,
+  refreshAccessToken,
+  userConnectedInfos,
+  requestPasswordReset,
+  resetPassword,
+} from "../services/auth.service";
 import { createProfile } from "../services/profile.service";
 import type { profileRole } from "../../prisma/generated/enums";
 
@@ -55,6 +63,36 @@ export const refreshController = async (req: Request, res: Response) => {
     return res.status(200).json({ accessToken: userTokens.accessToken });
   } catch (error) {
     return res.status(401).json({ message: "Non autorisé" });
+  }
+};
+
+export const logoutController = async (req: Request, res: Response) => {
+  // Refresh token stateless (JWT signé, pas de stockage en base) : rien à révoquer côté serveur,
+  // il suffit de retirer le cookie httpOnly pour que le navigateur ne le renvoie plus.
+  res.clearCookie("refreshToken");
+  return res.status(200).json({ message: "Déconnecté" });
+};
+
+export const forgotPasswordController = async (req: Request, res: Response) => {
+  try {
+    const email = req.body.email;
+    await requestPasswordReset(email);
+    // Même réponse que l'email existe ou non : ne jamais révéler quels emails ont un compte.
+    return res.status(200).json({ message: "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Une erreur est survenue" });
+  }
+};
+
+export const resetPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+    await resetPassword(token, newPassword);
+    return res.status(200).json({ message: "Mot de passe réinitialisé" });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Une erreur est survenue";
+    return res.status(500).json({ message });
   }
 };
 

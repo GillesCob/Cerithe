@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { useAuth } from "../hooks/useAuth";
 
 interface ILoginForm {
@@ -8,6 +11,9 @@ interface ILoginForm {
 
 const LoginPage = () => {
   const { handleLogin } = useAuth();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? undefined;
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -15,7 +21,12 @@ const LoginPage = () => {
   } = useForm<ILoginForm>();
 
   const onSubmit = async (data: ILoginForm) => {
-    await handleLogin(data.email, data.password);
+    setErrorMessage(null);
+    try {
+      await handleLogin(data.email, data.password, redirectTo);
+    } catch (error) {
+      setErrorMessage(isAxiosError(error) ? (error.response?.data?.message ?? "Erreur inconnue") : "Erreur inconnue");
+    }
   };
 
   return (
@@ -57,7 +68,12 @@ const LoginPage = () => {
               placeholder="••••••••"
             />
             {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+            <a href="/forgot-password" className="mt-1 inline-block text-xs text-blue-600 hover:underline">
+              Mot de passe oublié ?
+            </a>
           </div>
+
+          {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
 
           <button
             type="submit"
@@ -70,7 +86,10 @@ const LoginPage = () => {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Pas encore de compte ?{" "}
-          <a href="/register" className="text-blue-600 hover:underline font-medium">
+          <a
+            href={redirectTo ? `/register?redirect=${redirectTo}` : "/register"}
+            className="text-blue-600 hover:underline font-medium"
+          >
             S'inscrire
           </a>
         </p>

@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { useAuth } from "../hooks/useAuth";
 
 interface IRegisterForm {
@@ -9,6 +12,9 @@ interface IRegisterForm {
 
 const RegisterPage = () => {
   const { handleRegister } = useAuth();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? undefined;
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -17,7 +23,12 @@ const RegisterPage = () => {
   } = useForm<IRegisterForm>();
 
   const onSubmit = async (data: IRegisterForm) => {
-    await handleRegister(data.email, data.password);
+    setErrorMessage(null);
+    try {
+      await handleRegister(data.email, data.password, redirectTo);
+    } catch (error) {
+      setErrorMessage(isAxiosError(error) ? (error.response?.data?.message ?? "Erreur inconnue") : "Erreur inconnue");
+    }
   };
 
   return (
@@ -75,6 +86,8 @@ const RegisterPage = () => {
             {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>}
           </div>
 
+          {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -86,7 +99,10 @@ const RegisterPage = () => {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Déjà un compte ?{" "}
-          <a href="/login" className="text-blue-600 hover:underline font-medium">
+          <a
+            href={redirectTo ? `/login?redirect=${redirectTo}` : "/login"}
+            className="text-blue-600 hover:underline font-medium"
+          >
             Se connecter
           </a>
         </p>
