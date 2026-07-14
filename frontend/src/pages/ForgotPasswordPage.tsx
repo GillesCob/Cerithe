@@ -54,7 +54,7 @@ const ForgotPasswordPage = () => {
                   },
                 })}
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="gilles@cobigo.com"
+                placeholder="votre@email.com"
               />
               {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
             </div>

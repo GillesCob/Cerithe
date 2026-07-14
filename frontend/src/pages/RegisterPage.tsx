@@ -50,7 +50,7 @@ const RegisterPage = () => {
                 },
               })}
               className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="gilles@cobigo.com"
+              placeholder="votre@email.com"
             />
             {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           </div>
@@ -99,10 +99,7 @@ const RegisterPage = () => {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Déjà un compte ?{" "}
-          <a
-            href={redirectTo ? `/login?redirect=${redirectTo}` : "/login"}
-            className="text-blue-600 hover:underline font-medium"
-          >
+          <a href={redirectTo ? `/login?redirect=${redirectTo}` : "/login"} className="text-blue-600 hover:underline font-medium">
             Se connecter
           </a>
         </p>
