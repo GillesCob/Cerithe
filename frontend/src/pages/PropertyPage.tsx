@@ -28,12 +28,20 @@ const PropertyPage = () => {
 
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-bold text-gray-900">{property.name}</h1>
-          <button
-            className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            onClick={() => setIsTransmitting(true)}
-          >
-            Transmettre
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/property-form/${id}`}
+              className="text-sm border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50"
+            >
+              Modifier
+            </Link>
+            <button
+              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              onClick={() => setIsTransmitting(true)}
+            >
+              Transmettre
+            </button>
+          </div>
         </div>
         {isTransmitting && <CreateTransmissionModal propertyId={id!} onClose={() => setIsTransmitting(false)} />}
 

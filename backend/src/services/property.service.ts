@@ -6,26 +6,29 @@ export const createProperty = async (data: PropertyDto, profileId: string) => {
   return newProperty;
 };
 
-export const getPropertyById = async (id: string) => {
-  const myProperty = await prisma.property.findUnique({ where: { id } });
+export const getPropertyById = async (id: string, userId: string) => {
+  const myProperty = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
   if (!myProperty) throw new Error("Bien non trouvé");
+  if (myProperty.profile.userId !== userId) throw new Error("Non autorisé");
   return myProperty;
 };
 
-export const allOwnerProperties = async (id: string) => {
-  const allProperties = await prisma.property.findMany({ where: { profileId: id } });
+export const allOwnerProperties = async (profileIds: string[]) => {
+  const allProperties = await prisma.property.findMany({ where: { profileId: { in: profileIds } } });
   return allProperties;
 };
 
-export const updateProperty = async (id: string, data: Partial<PropertyDto>) => {
-  const property = await prisma.property.findUnique({ where: { id } });
+export const updateProperty = async (id: string, userId: string, data: Partial<PropertyDto>) => {
+  const property = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
   if (!property) throw new Error("Erreur lors de la mise à jour du bien");
+  if (property.profile.userId !== userId) throw new Error("Non autorisé");
   const propertyModified = await prisma.property.update({ where: { id }, data });
   return propertyModified;
 };
 
-export const deleteProperty = async (id: string) => {
-  const propertyExist = await prisma.property.findUnique({ where: { id } });
+export const deleteProperty = async (id: string, userId: string) => {
+  const propertyExist = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
   if (!propertyExist) throw new Error("Bien non trouvé");
+  if (propertyExist.profile.userId !== userId) throw new Error("Non autorisé");
   await prisma.property.delete({ where: { id } });
 };
