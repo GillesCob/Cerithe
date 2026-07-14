@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { isAxiosError } from "axios";
 import { useUploadDocument } from "@/hooks/useDocument";
 
 interface IUploadDocumentFormProps {
@@ -10,11 +11,22 @@ interface IUploadDocumentFormProps {
 
 const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocumentFormProps) => {
   const [file, setFile] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate, isPending } = useUploadDocument();
 
   const handleSubmit = () => {
     if (!file) return;
-    mutate({ propertyId, file }, { onSuccess: onClose });
+    setErrorMessage(null);
+    mutate(
+      { propertyId, file },
+      {
+        onSuccess: onClose,
+        onError: (error) => {
+          setErrorMessage(isAxiosError(error) ? (error.response?.data?.message ?? "Erreur inconnue") : "Erreur inconnue");
+        },
+      },
+    );
   };
 
   return (
@@ -23,7 +35,21 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
         <DialogHeader>
           <DialogTitle>Ajouter un document</DialogTitle>
         </DialogHeader>
-        <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-sm" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full px-4 py-2.5 rounded-lg border border-dashed border-gray-300 text-sm text-gray-600 hover:bg-gray-50 text-left"
+        >
+          {file ? file.name : "Cliquer pour choisir un fichier (PDF, JPG, PNG — 10MB max)"}
+        </button>
+        {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Annuler

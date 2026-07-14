@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { verifyAccessToken } from "../middlewares/auth.middleware";
 import { createDocumentController, getDocumentsByPropertyController } from "../controllers/document.controller";
-import { upload } from "../middlewares/upload.middleware";
+import { uploadSingleDocument } from "../middlewares/upload.middleware";
 
 const documentRouter = Router();
 
-documentRouter.post("/", verifyAccessToken, upload.single("file"), createDocumentController);
+documentRouter.post("/", verifyAccessToken, uploadSingleDocument, createDocumentController);
 documentRouter.get("/:propertyId", verifyAccessToken, getDocumentsByPropertyController);
 
 export default documentRouter;
