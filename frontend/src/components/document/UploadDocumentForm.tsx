@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { isAxiosError } from "axios";
 import { useUploadDocument } from "@/hooks/useDocument";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB, cohérent avec upload.middleware.ts et le vhost Nginx
+
 interface IUploadDocumentFormProps {
   propertyId: string;
   onClose: () => void;
@@ -15,6 +17,13 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate, isPending } = useUploadDocument();
 
+  const handleFileChange = (selected: File | null) => {
+    setErrorMessage(
+      selected && selected.size > MAX_FILE_SIZE ? "Fichier trop volumineux (10MB maximum)" : null,
+    );
+    setFile(selected && selected.size <= MAX_FILE_SIZE ? selected : null);
+  };
+
   const handleSubmit = () => {
     if (!file) return;
     setErrorMessage(null);
@@ -23,6 +32,13 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
       {
         onSuccess: onClose,
         onError: (error) => {
+          // Un fichier trop volumineux peut être rejeté par Nginx (client_max_body_size) avant même
+          // d'atteindre le backend : la réponse est alors une page d'erreur Nginx, pas du JSON avec
+          // un champ "message" — d'où ce cas spécial sur le code HTTP, indépendant du corps de la réponse.
+          if (isAxiosError(error) && error.response?.status === 413) {
+            setErrorMessage("Fichier trop volumineux (10MB maximum)");
+            return;
+          }
           setErrorMessage(isAxiosError(error) ? (error.response?.data?.message ?? "Erreur inconnue") : "Erreur inconnue");
         },
       },
@@ -39,7 +55,7 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
           ref={fileInputRef}
           type="file"
           accept=".pdf,.jpg,.jpeg,.png"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
           className="hidden"
         />
         <button
