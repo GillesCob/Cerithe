@@ -226,14 +226,23 @@ export const acceptTransmissionToken = async (token: string, userId: string) => 
 
   if (transmissionToken.status !== "clicked") throw new Error("Transmission non disponible pour acceptation.");
 
-  // Cas destinataire multi-profils : recipientProfileId reste null tant que selectRecipientProfile n'a pas été appelé.
-  if (!transmissionToken.recipientProfileId) throw new Error("Impossible de déterminer le profil du destinataire.");
+  // recipientProfileId reste null si le destinataire n'était pas encore inscrit à la création de la
+  // transmission (createTransmissionToken) ou s'il avait plusieurs profils (résolu normalement par
+  // selectRecipientProfile, appelé côté frontend uniquement si profiles.length > 1). Ici, needsProfileSelection
+  // a déjà écarté le cas multi-profils avant qu'on arrive à l'acceptation : s'il reste null, on retente la même
+  // résolution qu'à la création (un seul profil possible) plutôt que de bloquer un cas pourtant courant.
+  let recipientProfileId = transmissionToken.recipientProfileId;
+  if (!recipientProfileId) {
+    const recipientProfiles = await prisma.profile.findMany({ where: { userId } });
+    if (recipientProfiles.length !== 1) throw new Error("Impossible de déterminer le profil du destinataire.");
+    recipientProfileId = recipientProfiles[0]!.id;
+  }
 
   const acceptedAt = new Date();
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
   return prisma.transmissionToken.update({
     where: { token },
-    data: { status: "accepted", acceptedAt, expiresAt },
+    data: { status: "accepted", acceptedAt, expiresAt, recipientProfileId },
   });
 };
 
