@@ -3,4 +3,5 @@ export interface IProfile {
   firstName: string | null;
   lastName: string | null;
   role: string;
+  email: string;
 }

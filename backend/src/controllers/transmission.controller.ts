@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import {
   createTransmissionToken,
   getTransmissionTokenInfos,
+  getLatestTransmissionForProperty,
   selectRecipientProfile,
   acceptTransmissionToken,
   cancelTransmissionToken,
@@ -34,6 +35,19 @@ export const createTransmissionUrl = async (req: Request, res: Response) => {
   }
 };
 
+export const getLatestTransmissionController = async (req: Request, res: Response) => {
+  const propertyId = req.params.propertyId as string;
+  const userId = req.user!.userId;
+  try {
+    const transmission = await getLatestTransmissionForProperty(propertyId, userId);
+    return res.status(200).json(transmission);
+  } catch (error) {
+    console.error(error);
+    const message = error instanceof Error ? error.message : "Impossible de récupérer la transmission";
+    return res.status(500).json({ message });
+  }
+};
+
 export const readOneTransmissionController = async (req: Request, res: Response) => {
   const token = req.params.token as string;
   const userId = req.user!.userId;
@@ -42,9 +56,8 @@ export const readOneTransmissionController = async (req: Request, res: Response)
     return res.status(200).json(transmissionInfos);
   } catch (error) {
     console.error(error);
-    // TODO: messages génériques pour toutes les erreurs de ce controller, à préciser pour l'utilisateur
-    // (ex: différencier "pas le bon destinataire" d'une vraie erreur serveur) une fois un typage d'erreur en place.
-    return res.status(500).json({ message: "Transmission introuvable" });
+    const message = error instanceof Error ? error.message : "Transmission introuvable";
+    return res.status(500).json({ message });
   }
 };
 

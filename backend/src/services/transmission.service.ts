@@ -56,9 +56,29 @@ export const createTransmissionToken = async (recipientEmail: string, ownerId: s
   return transmissionToken;
 };
 
+export const getLatestTransmissionForProperty = async (propertyId: string, userId: string) => {
+  const property = await prisma.property.findUnique({
+    where: { id: propertyId },
+    include: { profile: true },
+  });
+  if (!property) throw new Error("Bien introuvable");
+  if (property.profile.userId !== userId) throw new Error("Non autorisé");
+
+  const latestTransmission = await prisma.transmissionToken.findFirst({
+    where: { propertyId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Une transmission confirmée, annulée ou expirée ne bloque pas une nouvelle transmission (même règle que createTransmissionToken).
+  if (!latestTransmission || !["pending", "clicked", "accepted"].includes(latestTransmission.status)) return null;
+
+  return latestTransmission;
+};
+
 export const transmissionTokenUserPropertyInfos = (
   property: Property,
   profile: Profile,
+  ownerEmail: string,
   recipientProfileId: string | null,
   status: transmissionStatus,
 ) => {
@@ -66,7 +86,8 @@ export const transmissionTokenUserPropertyInfos = (
   const { firstName, lastName } = profile;
   const returnDatas = {
     property: { name, address, houseType, surface },
-    owner: { firstName, lastName },
+    // firstName/lastName peuvent être vides (profil non complété) : l'email sert de repli côté frontend.
+    owner: { firstName, lastName, email: ownerEmail },
     recipientKnown: recipientProfileId !== null,
     status,
   };
@@ -79,7 +100,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
   // j'utilise le token pour récupérer le TransmissionToken et ainsi en extraire les infos et les mettre à jour
   const transmissionToken = await prisma.transmissionToken.findUnique({
     where: { token },
-    include: { property: { include: { profile: true } } },
+    include: { property: { include: { profile: { include: { user: true } } } } },
   });
   // Pas de TransmissionToken => on indique "pas de transmission en cours"
   if (!transmissionToken) throw new Error("Pas de transmission en cours");
@@ -104,6 +125,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     return transmissionTokenUserPropertyInfos(
       transmissionToken.property,
       transmissionToken.property.profile,
+      transmissionToken.property.profile.user.email,
       transmissionToken.recipientProfileId,
       status,
     );
@@ -120,6 +142,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     return transmissionTokenUserPropertyInfos(
       transmissionToken.property,
       transmissionToken.property.profile,
+      transmissionToken.property.profile.user.email,
       transmissionToken.recipientProfileId,
       transmissionToken.status,
     );
@@ -130,6 +153,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     return transmissionTokenUserPropertyInfos(
       transmissionToken.property,
       transmissionToken.property.profile,
+      transmissionToken.property.profile.user.email,
       transmissionToken.recipientProfileId,
       transmissionToken.status,
     );
@@ -139,6 +163,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     return transmissionTokenUserPropertyInfos(
       transmissionToken.property,
       transmissionToken.property.profile,
+      transmissionToken.property.profile.user.email,
       transmissionToken.recipientProfileId,
       transmissionToken.status,
     );
@@ -148,6 +173,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     return transmissionTokenUserPropertyInfos(
       transmissionToken.property,
       transmissionToken.property.profile,
+      transmissionToken.property.profile.user.email,
       transmissionToken.recipientProfileId,
       transmissionToken.status,
     );
@@ -157,6 +183,7 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     return transmissionTokenUserPropertyInfos(
       transmissionToken.property,
       transmissionToken.property.profile,
+      transmissionToken.property.profile.user.email,
       transmissionToken.recipientProfileId,
       transmissionToken.status,
     );

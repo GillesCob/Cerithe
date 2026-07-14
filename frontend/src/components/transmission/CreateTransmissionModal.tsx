@@ -2,7 +2,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
-import { useCreateTransmission, useCancelTransmission } from "@/hooks/useTransmission";
+import { useCreateTransmission, useGetActiveTransmissionForProperty } from "@/hooks/useTransmission";
+import PendingTransmissionModal from "./PendingTransmissionModal";
+import AcceptedTransmissionModal from "./AcceptedTransmissionModal";
 
 interface ICreateTransmissionModalProps {
   propertyId: string;
@@ -14,8 +16,9 @@ interface ICreateTransmissionForm {
 }
 
 const CreateTransmissionModal = ({ propertyId, onClose }: ICreateTransmissionModalProps) => {
+  const { activeTransmission, isPending: isLoadingActive } = useGetActiveTransmissionForProperty(propertyId);
   const { register, handleSubmit } = useForm<ICreateTransmissionForm>();
-  const { mutate, isPending, isError, error, isSuccess, data: transmissionUrl, reset } = useCreateTransmission(propertyId);
+  const { mutate, isPending, isError, error, isSuccess } = useCreateTransmission(propertyId);
 
   const onSubmit = (form: ICreateTransmissionForm) => {
     mutate(form.recipientEmail);
@@ -23,12 +26,41 @@ const CreateTransmissionModal = ({ propertyId, onClose }: ICreateTransmissionMod
 
   const errorMessage =
     isError && isAxiosError(error) ? (error.response?.data?.message ?? "Erreur lors de la création de la transmission") : null;
-  const conflictToken: string | undefined =
-    isError && isAxiosError(error) && error.response?.status === 409 ? error.response.data?.transmissionToken : undefined;
 
-  const { mutate: cancelExisting, isPending: isCancelling } = useCancelTransmission(conflictToken ?? "");
-  const handleCancelExisting = () => cancelExisting(undefined, { onSuccess: () => reset() });
+  // Chargement du statut de la transmission en cours, avant de savoir quelle vue afficher.
+  if (isLoadingActive) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transmettre ce bien</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-500">Chargement...</p>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
+  // Le destinataire a accepté : le vendeur doit valider définitivement ou refuser.
+  if (activeTransmission?.status === "accepted") {
+    return <AcceptedTransmissionModal propertyId={propertyId} token={activeTransmission.token} onClose={onClose} />;
+  }
+
+  // Une transmission est en cours (pending ou clicked) : on montre le lien existant plutôt qu'un nouveau formulaire.
+  // Couvre aussi le cas "on vient de créer le lien" : la création invalide activeTransmission, qui se
+  // recharge avec la transmission fraîchement créée et bascule ici automatiquement.
+  if (activeTransmission) {
+    return (
+      <PendingTransmissionModal
+        propertyId={propertyId}
+        token={activeTransmission.token}
+        recipientEmail={activeTransmission.recipientEmail}
+        onClose={onClose}
+      />
+    );
+  }
+
+  // Aucune transmission en cours : formulaire de création classique.
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
@@ -37,10 +69,9 @@ const CreateTransmissionModal = ({ propertyId, onClose }: ICreateTransmissionMod
         </DialogHeader>
 
         {isSuccess ? (
-          <div className="space-y-3">
-            <p className="text-sm text-gray-600">Lien de transmission généré :</p>
-            <input readOnly value={transmissionUrl} className="w-full border rounded-md px-3 py-2 text-sm" onFocus={(e) => e.target.select()} />
-          </div>
+          // Bascule automatiquement sur PendingTransmissionModal dès que activeTransmission se recharge
+          // (invalidé par la création) : ce texte n'est visible qu'un très bref instant, le temps du refetch.
+          <p className="text-sm text-gray-500">Lien généré...</p>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <input
@@ -50,11 +81,6 @@ const CreateTransmissionModal = ({ propertyId, onClose }: ICreateTransmissionMod
               {...register("recipientEmail", { required: true })}
             />
             {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
-            {conflictToken && (
-              <Button type="button" variant="outline" onClick={handleCancelExisting} disabled={isCancelling}>
-                {isCancelling ? "Annulation..." : "Annuler cette transmission"}
-              </Button>
-            )}
           </form>
         )}
 

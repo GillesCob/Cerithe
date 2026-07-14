@@ -13,8 +13,13 @@ export const getProfileById = async (id: string) => {
 };
 
 export const allUserProfiles = async (id: string) => {
-  const allProfiles = await prisma.profile.findMany({ where: { userId: id } });
-  return allProfiles;
+  const allProfiles = await prisma.profile.findMany({
+    where: { userId: id },
+    include: { user: { select: { email: true } } },
+  });
+  // firstName/lastName peuvent être vides (profil auto-créé à l'inscription, jamais complété) : on ajoute
+  // l'email à plat pour permettre un repli d'affichage côté frontend, sans exposer le reste du User.
+  return allProfiles.map(({ user, ...profile }) => ({ ...profile, email: user.email }));
 };
 
 export const updateProfile = async (id: string, data: Partial<ProfileDto>) => {

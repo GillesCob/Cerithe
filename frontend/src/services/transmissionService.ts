@@ -24,3 +24,13 @@ export const cancelTransmission = async (token: string) => {
   const response = await apiClient.post(`/api/transmissions/${token}/cancel`);
   return response.data;
 };
+
+export const confirmTransmission = async (token: string) => {
+  const response = await apiClient.post(`/api/transmissions/${token}/confirm`);
+  return response.data;
+};
+
+export const getLatestTransmissionForProperty = async (propertyId: string) => {
+  const response = await apiClient.get(`/api/transmissions/property/${propertyId}`);
+  return response.data;
+};

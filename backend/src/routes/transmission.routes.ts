@@ -5,6 +5,7 @@ import { transmissionchema, selectRecipientProfileSchema } from "../validators/t
 import {
   createTransmissionUrl,
   readOneTransmissionController,
+  getLatestTransmissionController,
   selectRecipientProfileController,
   acceptTransmissionController,
   cancelTransmissionController,
@@ -13,6 +14,8 @@ import {
 
 const transmissionRouter = Router();
 
+// Route fixe "/property/:propertyId" déclarée avant "/:token" pour ne pas être interprétée comme un token.
+transmissionRouter.get("/property/:propertyId", verifyAccessToken, getLatestTransmissionController);
 transmissionRouter.post("/:propertyId", verifyAccessToken, validate(transmissionchema), createTransmissionUrl);
 transmissionRouter.get("/:token", verifyAccessToken, readOneTransmissionController);
 transmissionRouter.post(

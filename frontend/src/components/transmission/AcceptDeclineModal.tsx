@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 interface IAcceptDeclineModalProps {
   property: { name: string; address: string; houseType: string; surface: number };
-  owner: { firstName: string; lastName: string };
+  owner: { firstName: string; lastName: string; email: string };
   onAccept: () => void;
   onDecline: () => void;
   isAccepting: boolean;
@@ -20,6 +20,9 @@ const AcceptDeclineModal = ({
   isDeclining,
   errorMessage,
 }: IAcceptDeclineModalProps) => {
+  // Le prénom/nom du profil vendeur peut être vide (profil non complété) : on retombe sur l'email.
+  const ownerName = owner.firstName || owner.lastName ? `${owner.firstName} ${owner.lastName}` : owner.email;
+
   return (
     <Dialog open={true} onOpenChange={() => {}}>
       <DialogContent>
@@ -27,9 +30,7 @@ const AcceptDeclineModal = ({
           <DialogTitle>Transmission de bien</DialogTitle>
         </DialogHeader>
         <div className="space-y-1 text-sm">
-          <p>
-            {owner.firstName} {owner.lastName} souhaite vous transmettre :
-          </p>
+          <p>{ownerName} souhaite vous transmettre :</p>
           <p className="font-semibold">{property.name}</p>
           <p>{property.address}</p>
           <p>
