@@ -21,6 +21,10 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Router
 app.use("/api/auth", authRouter);
 app.use("/api/properties", propertyRouter);
