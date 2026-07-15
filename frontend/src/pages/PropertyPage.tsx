@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useGetPropertyById } from "../hooks/useProperty";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
 import { useGetDocuments, useDeleteDocument } from "@/hooks/useDocument";
@@ -9,8 +9,23 @@ import type { IDocument } from "@/types/document";
 
 const FeatureComingSoonButton = ({ label }: { label: string }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Ferme le tooltip sur n'importe quel clic en dehors du bouton, pas seulement en recliquant
+  // dessus (mobile n'a pas de hover pour le fermer autrement).
+  useEffect(() => {
+    if (!showTooltip) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowTooltip(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showTooltip]);
+
   return (
-    <div className="relative group">
+    <div ref={containerRef} className="relative group">
       <button
         type="button"
         onClick={() => setShowTooltip((v) => !v)}
@@ -142,7 +157,7 @@ const PropertyPage = () => {
 
         <div className="border-t border-gray-200 pt-8 mt-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">Pièces & travaux</h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-8">
             <FeatureComingSoonButton label="+ Ajouter une pièce" />
             <FeatureComingSoonButton label="+ Ajouter des travaux" />
             <FeatureComingSoonButton label="Vue 3D du bien" />
