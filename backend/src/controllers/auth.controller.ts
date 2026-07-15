@@ -46,6 +46,9 @@ export const loginController = async (req: Request, res: Response) => {
     });
     return res.status(200).json({ user: loginUser, accessToken: userTokens.accessToken });
   } catch (error) {
+    if (error instanceof Error && error.message === "Identifiants incorrects") {
+      return res.status(401).json({ message: error.message });
+    }
     console.error(error);
     return res.status(500).json({ message: "Une erreur est survenue" });
   }
