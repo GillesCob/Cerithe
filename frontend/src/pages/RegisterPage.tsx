@@ -49,7 +49,7 @@ const RegisterPage = () => {
                   message: "Email invalide",
                 },
               })}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="votre@email.com"
             />
             {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
@@ -66,7 +66,7 @@ const RegisterPage = () => {
                   message: "Minimum 8 caractères",
                 },
               })}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="••••••••"
             />
             {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
@@ -80,7 +80,7 @@ const RegisterPage = () => {
                 required: "Confirmez votre mot de passe",
                 validate: (value) => value === watch("password") || "Les mots de passe ne correspondent pas",
               })}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="••••••••"
             />
             {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>}

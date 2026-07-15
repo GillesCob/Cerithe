@@ -63,10 +63,10 @@ const PropertyFormPage = () => {
         >
           <h1 className="text-xl font-bold text-gray-900">{isEditing ? "Modifier le bien" : "Ajouter un bien"}</h1>
 
-          <input {...register("name")} placeholder="Nom du bien" className="border border-gray-200 rounded-lg px-4 py-2 text-sm" />
-          <input {...register("address")} placeholder="Adresse" className="border border-gray-200 rounded-lg px-4 py-2 text-sm" />
+          <input {...register("name")} placeholder="Nom du bien" className="border border-gray-200 rounded-lg px-4 py-2 text-base" />
+          <input {...register("address")} placeholder="Adresse" className="border border-gray-200 rounded-lg px-4 py-2 text-base" />
 
-          <select {...register("houseType")} className="border border-gray-200 rounded-lg px-4 py-2 text-sm">
+          <select {...register("houseType")} className="border border-gray-200 rounded-lg px-4 py-2 text-base">
             <option value="HOUSE">Maison</option>
             <option value="APPARTMENT">Appartement</option>
           </select>
@@ -75,13 +75,13 @@ const PropertyFormPage = () => {
             {...register("surface")}
             type="number"
             placeholder="Surface (m²)"
-            className="border border-gray-200 rounded-lg px-4 py-2 text-sm"
+            className="border border-gray-200 rounded-lg px-4 py-2 text-base"
           />
           <input
             {...register("numberOfLevels")}
             type="number"
             placeholder="Nombre de niveaux"
-            className="border border-gray-200 rounded-lg px-4 py-2 text-sm"
+            className="border border-gray-200 rounded-lg px-4 py-2 text-base"
           />
 
           <button
