@@ -18,14 +18,13 @@ const VALUE_POINTS = [
 export default function ProtoLandingPage() {
   return (
     <div className="min-h-dvh bg-gray-50">
-      <section className="flex flex-col items-center px-6 pt-20 pb-16 text-center">
-        <img src="/logo-cerithe.png" alt="Cerithe" className="h-32 w-auto mb-8" />
+      <section className="flex flex-col items-center px-6 pt-10 pb-16 text-center">
+        <img src="/logo-cerithe.png" alt="Cerithe" className="h-64 w-auto mb-4" />
         <h1 className="font-display text-3xl md:text-4xl font-bold text-gray-900 tracking-tight leading-tight max-w-xl">
           Le carnet de santé numérique de votre bien immobilier
         </h1>
         <p className="mt-4 text-base md:text-lg text-gray-500 max-w-lg">
-          Centralisez travaux, diagnostics et documents. Transmettez tout l'historique à votre acheteur en quelques
-          clics.
+          Centralisez travaux, diagnostics et documents. Transmettez tout l'historique à votre acheteur en quelques clics.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <Link
