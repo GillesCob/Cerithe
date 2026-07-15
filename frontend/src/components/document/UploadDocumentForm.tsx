@@ -34,7 +34,7 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
         onError: (error) => {
           // Un fichier trop volumineux peut être rejeté par Nginx (client_max_body_size) avant même
           // d'atteindre le backend : la réponse est alors une page d'erreur Nginx, pas du JSON avec
-          // un champ "message" — d'où ce cas spécial sur le code HTTP, indépendant du corps de la réponse.
+          // un champ "message", d'où ce cas spécial sur le code HTTP, indépendant du corps de la réponse.
           if (isAxiosError(error) && error.response?.status === 413) {
             setErrorMessage("Fichier trop volumineux (10MB maximum)");
             return;
@@ -63,7 +63,7 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
           onClick={() => fileInputRef.current?.click()}
           className="w-full px-4 py-2.5 rounded-lg border border-dashed border-gray-300 text-sm text-gray-600 hover:bg-gray-50 text-left"
         >
-          {file ? file.name : "Cliquer pour choisir un fichier (PDF, JPG, PNG — 10MB max)"}
+          {file ? file.name : "Cliquer pour choisir un fichier (PDF, JPG, PNG, 10MB max)"}
         </button>
         {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
         <DialogFooter>
