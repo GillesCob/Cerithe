@@ -31,7 +31,7 @@ const PropertyPage = () => {
           Retour
         </Link>
 
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
           <h1 className="text-2xl font-bold text-gray-900">{property.name}</h1>
           <div className="flex items-center gap-2">
             <Link
