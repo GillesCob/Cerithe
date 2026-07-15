@@ -19,12 +19,12 @@ const FeatureComingSoonButton = ({ label }: { label: string }) => {
         {label}
       </button>
       <div
-        className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 whitespace-nowrap bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-lg pointer-events-none z-10 transition-opacity ${
+        className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-max max-w-[9rem] text-center bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-lg pointer-events-none z-10 transition-opacity ${
           showTooltip ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         }`}
       >
         <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 bg-gray-800 rotate-45" />
-        Fonctionnalité en cours de développement
+        En développement
       </div>
     </div>
   );
