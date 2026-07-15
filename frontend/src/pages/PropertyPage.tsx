@@ -1,10 +1,10 @@
 import { useParams, Link } from "react-router-dom";
 import { useGetPropertyById } from "../hooks/useProperty";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
-import { useGetDocuments } from "@/hooks/useDocument";
+import { useGetDocuments, useDeleteDocument } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
 
 const PropertyPage = () => {
@@ -13,6 +13,12 @@ const PropertyPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isTransmitting, setIsTransmitting] = useState(false);
   const { documents } = useGetDocuments(id!);
+  const { mutate: deleteDocument, isPending: isDeletingDocument } = useDeleteDocument();
+
+  const handleDeleteDocument = (documentId: string) => {
+    if (!window.confirm("Supprimer ce document ? Cette action est irréversible.")) return;
+    deleteDocument(documentId, { onError: () => window.alert("Impossible de supprimer ce document.") });
+  };
 
   if (isPending)
     return (
@@ -75,15 +81,24 @@ const PropertyPage = () => {
           {isUploading && <UploadDocumentForm propertyId={id!} onClose={() => setIsUploading(false)} />}
           {documents && documents.length > 0 ? (
             documents.map((doc: IDocument) => (
-              <a
-                key={doc.id}
-                href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/documents/${doc.url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="py-3 border-b border-gray-100 text-sm text-blue-600 hover:underline block"
-              >
-                {doc.title}
-              </a>
+              <div key={doc.id} className="flex items-center justify-between gap-2 py-3 border-b border-gray-100">
+                <a
+                  href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/documents/${doc.url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-w-0 truncate text-sm text-blue-600 hover:underline"
+                >
+                  {doc.title}
+                </a>
+                <button
+                  onClick={() => handleDeleteDocument(doc.id)}
+                  disabled={isDeletingDocument}
+                  aria-label="Supprimer le document"
+                  className="shrink-0 text-gray-400 hover:text-red-600 disabled:opacity-50"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             ))
           ) : (
             <p className="text-sm text-gray-400">Aucun document pour le moment.</p>

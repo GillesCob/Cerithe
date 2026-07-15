@@ -17,3 +17,8 @@ export const getDocumentsByProperty = async (propertyId: string) => {
   const response = await apiClient.get(`/api/documents/${propertyId}`);
   return response.data;
 };
+
+export const deleteDocument = async (id: string) => {
+  const response = await apiClient.delete(`/api/documents/${id}`);
+  return response.data;
+};

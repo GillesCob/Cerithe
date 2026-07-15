@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getDocumentsByProperty, uploadDocument } from "../services/documentService";
+import { deleteDocument, getDocumentsByProperty, uploadDocument } from "../services/documentService";
 
 export const useUploadDocument = () => {
   const queryClient = useQueryClient();
@@ -22,4 +22,14 @@ export const useGetDocuments = (propertyId: string) => {
     enabled: !!propertyId,
   });
   return { documents, isPending, isError };
+};
+
+export const useDeleteDocument = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteDocument,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+  });
 };

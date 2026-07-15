@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { uploadDocument } from "../services/storage.service";
-import { createDocument, getDocumentsByProperty } from "../services/document.service";
+import { createDocument, getDocumentsByProperty, deleteDocument } from "../services/document.service";
 import type { documentType } from "../../prisma/generated/enums";
 
 export const createDocumentController = async (req: Request, res: Response) => {
@@ -28,5 +28,19 @@ export const getDocumentsByPropertyController = async (req: Request, res: Respon
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Erreur lors de la récupération des documents" });
+  }
+};
+
+export const deleteDocumentController = async (req: Request, res: Response) => {
+  const documentId = req.params.id as string;
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+
+  try {
+    await deleteDocument(documentId, userId);
+    return res.status(204).send();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Problème lors de la suppression du document";
+    return res.status(500).json({ message });
   }
 };
