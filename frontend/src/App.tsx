@@ -11,6 +11,7 @@ import PropertyPage from "./pages/PropertyPage";
 import TransmissionPage from "./pages/TransmissionPage";
 import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
 import ScrollReset from "./components/layout/ScrollReset";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 export default function App() {
   useAuthBootstrap();
@@ -24,11 +25,46 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/property-list" element={<PropertyListPage />} />
-        <Route path="/property-form" element={<PropertyFormPage />} />
-        <Route path="/property-form/:id" element={<PropertyFormPage />} />
-        <Route path="/property/:id" element={<PropertyPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/property-list"
+          element={
+            <ProtectedRoute>
+              <PropertyListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/property-form"
+          element={
+            <ProtectedRoute>
+              <PropertyFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/property-form/:id"
+          element={
+            <ProtectedRoute>
+              <PropertyFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/property/:id"
+          element={
+            <ProtectedRoute>
+              <PropertyPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/transmission/:token" element={<TransmissionPage />} />
       </Routes>
     </BrowserRouter>

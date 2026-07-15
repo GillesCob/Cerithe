@@ -46,9 +46,13 @@ apiClient.interceptors.response.use(
   async function (error) {
     const originalRequest = error.config as IRetryableRequestConfig | undefined;
 
+    // Un 401 sur ces routes publiques n'a rien à voir avec un access token expire (identifiants
+    // incorrects, session absente au refresh...) : tenter un refresh masquerait le vrai message
+    // derriere l'echec de ce refresh. Seules les routes authentifiees doivent declencher ce mecanisme.
+    const isPublicAuthCall =
+      originalRequest?.url?.includes("/auth/refresh") || originalRequest?.url?.includes("/auth/login");
     const isUnauthorized = error.response?.status === 401;
-    const isRefreshCall = originalRequest?.url?.includes("/auth/refresh");
-    if (!isUnauthorized || !originalRequest || originalRequest._retry || isRefreshCall) {
+    if (!isUnauthorized || !originalRequest || originalRequest._retry || isPublicAuthCall) {
       return Promise.reject(error);
     }
     originalRequest._retry = true;

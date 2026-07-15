@@ -4,10 +4,12 @@ import { useTokenStore } from "../stores/authStore";
 
 export const useAuthBootstrap = () => {
   const setAccessToken = useTokenStore((state) => state.setAccessToken);
+  const setBootstrapped = useTokenStore((state) => state.setBootstrapped);
 
   useEffect(() => {
     refreshAccessToken()
       .then(({ accessToken }) => setAccessToken(accessToken))
-      .catch(() => {});
-  }, [setAccessToken]);
+      .catch(() => {})
+      .finally(() => setBootstrapped());
+  }, [setAccessToken, setBootstrapped]);
 };
