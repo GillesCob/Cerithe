@@ -102,9 +102,15 @@ const PropertyPage = () => {
             ))
           ) : (
             <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-sm mb-4">
                 Ajoutez ici les documents relatifs à ce bien : plan, cadastre, diagnostics...
               </p>
+              <button
+                onClick={() => setIsUploading(true)}
+                className="inline-block px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Ajouter mon premier document
+              </button>
             </div>
           )}
         </div>
