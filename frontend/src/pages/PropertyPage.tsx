@@ -157,7 +157,7 @@ const PropertyPage = () => {
 
         <div className="border-t border-gray-200 pt-8 mt-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">Pièces & travaux</h2>
-          <div className="flex flex-wrap gap-3 mb-8">
+          <div className="flex flex-wrap gap-3 mb-20">
             <FeatureComingSoonButton label="+ Ajouter une pièce" />
             <FeatureComingSoonButton label="+ Ajouter des travaux" />
             <FeatureComingSoonButton label="Vue 3D du bien" />
