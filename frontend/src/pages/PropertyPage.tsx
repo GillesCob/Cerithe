@@ -6,6 +6,7 @@ import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
 import { useGetDocuments } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +15,14 @@ const PropertyPage = () => {
   const [isTransmitting, setIsTransmitting] = useState(false);
   const { documents } = useGetDocuments(id!);
 
-  if (isPending) return <div className="p-8">Chargement...</div>;
+  if (isPending)
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-8 space-y-4">
+        <Skeleton className="h-8 w-1/2" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
   if (isError) return <div className="p-8">Erreur</div>;
   if (!property) return <div className="p-8">Bien introuvable</div>;
 

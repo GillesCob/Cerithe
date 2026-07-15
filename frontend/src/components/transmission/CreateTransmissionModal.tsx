@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
 import { useCreateTransmission, useGetActiveTransmissionForProperty } from "@/hooks/useTransmission";
@@ -35,7 +36,7 @@ const CreateTransmissionModal = ({ propertyId, onClose }: ICreateTransmissionMod
           <DialogHeader>
             <DialogTitle>Transmettre ce bien</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-500">Chargement...</p>
+          <Skeleton className="h-4 w-full" />
         </DialogContent>
       </Dialog>
     );

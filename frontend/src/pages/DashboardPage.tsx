@@ -3,11 +3,19 @@ import { useGetProperties } from "../hooks/useProperty";
 import { useAuth } from "../hooks/useAuth";
 import type { IProperty } from "../types/property";
 import { PropertyCard } from "@/components/property/PropertyCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DashboardPage = () => {
   const { properties, isPending, isError } = useGetProperties();
   const { handleLogout } = useAuth();
-  if (isPending) return <div>Chargement...</div>;
+  if (isPending)
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-4">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+    );
   if (isError) return <div>Erreur lors du chargement des biens</div>;
 
   return (
