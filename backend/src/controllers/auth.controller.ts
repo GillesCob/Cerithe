@@ -11,6 +11,10 @@ import {
 import { createProfile } from "../services/profile.service";
 import type { profileRole } from "../../prisma/generated/enums";
 
+// Doit rester alignee sur JWT_REFRESH_EXPIRES_IN (.env, "7d") : sans maxAge, le cookie est un
+// cookie de session pur, supprime par le navigateur a sa fermeture (peu importe le navigateur).
+const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 export const registerController = async (req: Request, res: Response) => {
   try {
     const userEmail = req.body.email;
@@ -20,6 +24,7 @@ export const registerController = async (req: Request, res: Response) => {
     res.cookie("refreshToken", userTokens.refreshToken, {
       httpOnly: true,
       secure: true,
+      maxAge: REFRESH_COOKIE_MAX_AGE_MS,
     });
     const data = {
       firstName: "",
@@ -43,6 +48,7 @@ export const loginController = async (req: Request, res: Response) => {
     res.cookie("refreshToken", userTokens.refreshToken, {
       httpOnly: true,
       secure: true,
+      maxAge: REFRESH_COOKIE_MAX_AGE_MS,
     });
     return res.status(200).json({ user: loginUser, accessToken: userTokens.accessToken });
   } catch (error) {
@@ -62,6 +68,7 @@ export const refreshController = async (req: Request, res: Response) => {
     res.cookie("refreshToken", userTokens.refreshToken, {
       httpOnly: true,
       secure: true,
+      maxAge: REFRESH_COOKIE_MAX_AGE_MS,
     });
     return res.status(200).json({ accessToken: userTokens.accessToken });
   } catch (error) {
