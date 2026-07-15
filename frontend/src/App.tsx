@@ -10,6 +10,7 @@ import PropertyFormPage from "./pages/PropertyFormPage";
 import PropertyPage from "./pages/PropertyPage";
 import TransmissionPage from "./pages/TransmissionPage";
 import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
+import ScrollReset from "./components/layout/ScrollReset";
 
 export default function App() {
   const { isReady } = useAuthBootstrap();
@@ -17,6 +18,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollReset />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
