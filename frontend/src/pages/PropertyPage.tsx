@@ -101,7 +101,11 @@ const PropertyPage = () => {
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-400">Aucun document pour le moment.</p>
+            <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+              <p className="text-gray-400 text-sm">
+                Ajoutez ici les documents relatifs à ce bien : plan, cadastre, diagnostics...
+              </p>
+            </div>
           )}
         </div>
       </div>
