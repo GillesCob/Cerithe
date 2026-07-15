@@ -11,7 +11,7 @@ const DashboardPage = () => {
   if (isError) return <div>Erreur lors du chargement des biens</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-dvh bg-gray-50">
       {/* Navbar */}
       <nav className="bg-white border-b border-gray-200 px-6 flex items-center justify-between">
         <img src="/logo-cerithe.png" alt="Cerithe" className="h-25 w-auto" />

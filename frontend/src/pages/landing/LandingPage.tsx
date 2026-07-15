@@ -23,7 +23,7 @@ export default function LandingPage() {
   const portfolioUrl = import.meta.env.VITE_PORTFOLIO_URL;
 
   return (
-    <div className="min-h-screen bg-cerithe-cream">
+    <div className="min-h-dvh bg-cerithe-cream">
       {/* 1 - Hero */}
       <section className="bg-cerithe-navy flex flex-col items-center justify-center min-h-[60vh] px-6 py-20 text-center">
         <img src="/logo-cerithe.png" alt="Cerithe" className="max-h-[400px] w-auto mb-10 object-contain" />

@@ -49,7 +49,7 @@ const TransmissionPage = () => {
   // Pas connecté : on n'affiche aucune info du bien avant authentification (décision produit du 04/07).
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center space-y-4">
           <p className="text-sm text-gray-600">Un bien vous a été transmis. Connectez-vous ou inscrivez-vous pour le consulter.</p>
           <div className="flex gap-3 justify-center">
@@ -109,7 +109,7 @@ const TransmissionPage = () => {
   const message = isError ? genericMessage : (transmission?.status && statusMessages[transmission.status]) || genericMessage;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center space-y-4">
         <p className="text-sm text-gray-600">{message}</p>
         <Link to="/dashboard" className="text-sm text-blue-600 hover:underline font-medium">

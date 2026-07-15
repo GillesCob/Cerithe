@@ -7,7 +7,7 @@ interface IProfileSelectionModalProps {
 
 const ProfileSelectionModal = ({ profiles, onSelect }: IProfileSelectionModalProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-dvh flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center space-y-4">
         <p className="text-sm text-gray-600">Vous avez plusieurs profils. Choisissez celui qui reçoit ce bien :</p>
         <div className="space-y-2">

@@ -50,7 +50,7 @@ const PropertyFormPage = () => {
   if (isEditing && isLoadingProperty) return <div className="p-8">Chargement...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+    <div className="min-h-dvh bg-gray-50 flex flex-col items-center justify-center gap-4 px-4">
       <div className="w-full max-w-md">
         <Link to={backTo} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-4">
           <ArrowLeft size={16} />
