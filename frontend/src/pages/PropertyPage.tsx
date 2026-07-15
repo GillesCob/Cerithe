@@ -7,6 +7,29 @@ import CreateTransmissionModal from "@/components/transmission/CreateTransmissio
 import { useGetDocuments, useDeleteDocument } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
 
+const FeatureComingSoonButton = ({ label }: { label: string }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  return (
+    <div className="relative group">
+      <button
+        type="button"
+        onClick={() => setShowTooltip((v) => !v)}
+        className="cursor-pointer text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-lg"
+      >
+        {label}
+      </button>
+      <div
+        className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 whitespace-nowrap bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-lg pointer-events-none z-10 transition-opacity ${
+          showTooltip ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+      >
+        <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 bg-gray-800 rotate-45" />
+        Fonctionnalité en cours de développement
+      </div>
+    </div>
+  );
+};
+
 const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
   const { property, isPending, isError } = useGetPropertyById(id!);
@@ -115,6 +138,15 @@ const PropertyPage = () => {
               </button>
             </div>
           )}
+        </div>
+
+        <div className="border-t border-gray-200 pt-8 mt-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Pièces & travaux</h2>
+          <div className="flex flex-wrap gap-3">
+            <FeatureComingSoonButton label="+ Ajouter une pièce" />
+            <FeatureComingSoonButton label="+ Ajouter des travaux" />
+            <FeatureComingSoonButton label="Vue 3D du bien" />
+          </div>
         </div>
       </div>
     </div>
