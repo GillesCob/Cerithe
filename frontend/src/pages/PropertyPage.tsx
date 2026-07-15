@@ -50,13 +50,13 @@ const PropertyPage = () => {
         </div>
         {isTransmitting && <CreateTransmissionModal propertyId={id!} onClose={() => setIsTransmitting(false)} />}
 
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-500 mb-10">
           <span>{property.address}</span>
-          <span>·</span>
+          <span className="hidden sm:inline">·</span>
           <span>{property.houseType === "HOUSE" ? "Maison" : "Appartement"}</span>
-          <span>·</span>
+          <span className="hidden sm:inline">·</span>
           <span>{property.surface} m²</span>
-          <span>·</span>
+          <span className="hidden sm:inline">·</span>
           <span>
             {property.numberOfLevels} niveau{property.numberOfLevels > 1 ? "x" : ""}
           </span>
