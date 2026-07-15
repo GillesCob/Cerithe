@@ -19,7 +19,7 @@ export default function ProtoLandingPage() {
   return (
     <div className="min-h-dvh bg-gray-50">
       <section className="flex flex-col items-center px-6 pt-20 pb-16 text-center">
-        <img src="/logo-cerithe.png" alt="Cerithe" className="h-20 w-auto mb-8" />
+        <img src="/logo-cerithe.png" alt="Cerithe" className="h-32 w-auto mb-8" />
         <h1 className="font-display text-3xl md:text-4xl font-bold text-gray-900 tracking-tight leading-tight max-w-xl">
           Le carnet de santé numérique de votre bien immobilier
         </h1>
