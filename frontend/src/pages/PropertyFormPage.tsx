@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useCreateProperty, useDeleteProperty, useGetPropertyById, useUpdateProperty } from "../hooks/useProperty";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface IPropertyForm {
   name: string;
@@ -50,12 +49,8 @@ const PropertyFormPage = () => {
 
   if (isEditing && isLoadingProperty)
     return (
-      <div className="min-h-dvh bg-gray-50 flex flex-col items-center justify-center gap-4 px-4">
-        <div className="w-full max-w-md space-y-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
+      <div className="flex justify-center py-16">
+        <Loader2 className="animate-spin text-gray-400" />
       </div>
     );
 

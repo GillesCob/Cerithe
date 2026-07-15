@@ -13,8 +13,7 @@ import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
 import ScrollReset from "./components/layout/ScrollReset";
 
 export default function App() {
-  const { isReady } = useAuthBootstrap();
-  if (!isReady) return <div className="p-8">Chargement...</div>;
+  useAuthBootstrap();
 
   return (
     <BrowserRouter>

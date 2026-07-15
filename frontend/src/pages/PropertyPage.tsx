@@ -1,12 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { useGetPropertyById } from "../hooks/useProperty";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
 import { useGetDocuments } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,10 +16,8 @@ const PropertyPage = () => {
 
   if (isPending)
     return (
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-4">
-        <Skeleton className="h-8 w-1/2" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-32 w-full" />
+      <div className="flex justify-center py-16">
+        <Loader2 className="animate-spin text-gray-400" />
       </div>
     );
   if (isError) return <div className="p-8">Erreur</div>;

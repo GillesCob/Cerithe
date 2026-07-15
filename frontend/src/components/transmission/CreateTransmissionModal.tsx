@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
 import { useCreateTransmission, useGetActiveTransmissionForProperty } from "@/hooks/useTransmission";
@@ -36,7 +36,9 @@ const CreateTransmissionModal = ({ propertyId, onClose }: ICreateTransmissionMod
           <DialogHeader>
             <DialogTitle>Transmettre ce bien</DialogTitle>
           </DialogHeader>
-          <Skeleton className="h-4 w-full" />
+          <div className="flex justify-center py-4">
+            <Loader2 className="animate-spin text-gray-400" />
+          </div>
         </DialogContent>
       </Dialog>
     );

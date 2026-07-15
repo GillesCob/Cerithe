@@ -10,7 +10,7 @@ import {
 } from "../hooks/useTransmission";
 import ProfileSelectionModal from "../components/transmission/ProfileSelectionModal";
 import AcceptDeclineModal from "../components/transmission/AcceptDeclineModal";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 const TransmissionPage = () => {
   const { token } = useParams<{ token: string }>();
@@ -74,11 +74,8 @@ const TransmissionPage = () => {
 
   if (isPending)
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md space-y-3">
-          <Skeleton className="h-4 w-3/4 mx-auto" />
-          <Skeleton className="h-4 w-1/2 mx-auto" />
-        </div>
+      <div className="flex justify-center py-16">
+        <Loader2 className="animate-spin text-gray-400" />
       </div>
     );
 
