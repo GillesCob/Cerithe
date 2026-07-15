@@ -71,12 +71,14 @@ const PropertyPage = () => {
         <div className="border-t border-gray-200 pt-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
-            <button
-              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              onClick={() => setIsUploading(true)}
-            >
-              + Ajouter un document
-            </button>
+            {documents && documents.length > 0 && (
+              <button
+                className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                onClick={() => setIsUploading(true)}
+              >
+                + Ajouter un document
+              </button>
+            )}
           </div>
           {isUploading && <UploadDocumentForm propertyId={id!} onClose={() => setIsUploading(false)} />}
           {documents && documents.length > 0 ? (
@@ -109,7 +111,7 @@ const PropertyPage = () => {
                 onClick={() => setIsUploading(true)}
                 className="inline-block px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Ajouter mon premier document
+                + Ajouter un document
               </button>
             </div>
           )}
