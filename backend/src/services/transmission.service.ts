@@ -1,7 +1,7 @@
 import { email, includes, property } from "zod";
 import { houseType, type transmissionStatus } from "../../prisma/generated/enums";
 import prisma from "../lib/prisma";
-import type { Profile, Property } from "../../prisma/generated/client";
+import { Prisma, type Profile, type Property } from "../../prisma/generated/client";
 
 export const createTransmissionToken = async (recipientEmail: string, ownerId: string, propertyId: string) => {
   const ownerProfile = await prisma.profile.findUnique({
@@ -50,10 +50,31 @@ export const createTransmissionToken = async (recipientEmail: string, ownerId: s
     token,
     propertyId,
     recipientProfileId,
+    activePropertyId: propertyId,
   };
-  const transmissionToken = await prisma.transmissionToken.create({ data });
 
-  return transmissionToken;
+  try {
+    const transmissionToken = await prisma.transmissionToken.create({ data });
+    return transmissionToken;
+  } catch (error) {
+    // P2002 = violation de la contrainte unique sur activePropertyId : deux créations concurrentes sont
+    // passées le check ci-dessus (lignes 20-40) avant qu'aucune n'ait encore écrit (race condition TOCTOU).
+    // La BDD tranche : une seule des deux écritures réussit, l'autre atterrit ici et doit renvoyer la même
+    // erreur 409 que le check normal plutôt qu'une 500 générique.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const activeTransmission = await prisma.transmissionToken.findFirst({
+        where: { propertyId },
+        orderBy: { createdAt: "desc" },
+      });
+      throw Object.assign(
+        new Error(
+          "Une transmission est déjà en cours pour ce bien. Contactez le destinataire ou annulez-la avant d'en créer une nouvelle.",
+        ),
+        { transmissionToken: activeTransmission?.token },
+      );
+    }
+    throw error;
+  }
 };
 
 export const getLatestTransmissionForProperty = async (propertyId: string, userId: string) => {
@@ -136,7 +157,10 @@ export const getTransmissionTokenInfos = async (token: string, userId: string) =
     const expiredAt = transmissionToken.expiresAt;
     if (!expiredAt) throw new Error("Erreur lors de la transmission");
     if (expiredAt < new Date()) {
-      await prisma.transmissionToken.update({ where: { token }, data: { status: "expired" } });
+      await prisma.transmissionToken.update({
+        where: { token },
+        data: { status: "expired", activePropertyId: null },
+      });
       throw new Error("Délai de confirmation dépassé. Recontacter le vendeur.");
     }
     return transmissionTokenUserPropertyInfos(
@@ -267,7 +291,7 @@ export const cancelTransmissionToken = async (token: string, userId: string) => 
   const cancelledAt = new Date();
   return prisma.transmissionToken.update({
     where: { token },
-    data: { status: "cancelled", cancelledAt },
+    data: { status: "cancelled", cancelledAt, activePropertyId: null },
   });
 };
 
@@ -305,7 +329,7 @@ export const confirmTransmissionToken = async (token: string, userId: string) =>
     }),
     prisma.transmissionToken.update({
       where: { token },
-      data: { status: "confirmed" },
+      data: { status: "confirmed", activePropertyId: null },
     }),
   ]);
 
