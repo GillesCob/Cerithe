@@ -1,0 +1,54 @@
+name: Deploy Cerithe backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - run: npm ci
+
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enregistrer l'empreinte du VPS (déjà vérifiée, pas de ssh-keyscan à l'aveugle)
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ vars.VPS_HOST_KEY }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Transférer le backend (clé rsync, restreinte via rrsync à ce seul dossier)
+        run: |
+          echo "${{ secrets.CERITHE_RSYNC_DEPLOY_KEY }}" > /tmp/rsync_key
+          chmod 600 /tmp/rsync_key
+          rsync -avz --delete \
+            --exclude='node_modules' --exclude='dist' --exclude='.env' --exclude='*.log' \
+            -e "ssh -i /tmp/rsync_key" \
+            backend/ "${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}:"
+          rm -f /tmp/rsync_key
+
+      - name: Relancer le backend (clé restart, commande forcée côté VPS quoi qu'on envoie ici)
+        run: |
+          echo "${{ secrets.CERITHE_RESTART_DEPLOY_KEY }}" > /tmp/restart_key
+          chmod 600 /tmp/restart_key
+          ssh -i /tmp/restart_key "${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}" "ignored, le VPS force docker compose up -d --build"
+          rm -f /tmp/restart_key
