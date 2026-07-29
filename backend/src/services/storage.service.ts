@@ -1,21 +1,15 @@
-import { supabase } from "../lib/supabase";
+import { mkdir, writeFile, unlink } from "fs/promises";
+import path from "path";
 
-export const uploadDocument = async (buffer: Buffer, fileName: string, mimeType: string) => {
+const STORAGE_DIR = "/app/storage/documents";
+
+export const uploadDocument = async (buffer: Buffer, fileName: string) => {
+  await mkdir(STORAGE_DIR, { recursive: true });
   const uniqueFileName = `${Date.now()}-${fileName}`;
-  const { data, error } = await supabase.storage
-    .from("documents")
-    .upload(uniqueFileName, buffer, { contentType: mimeType });
-  if (error) {
-    console.error(error);
-    throw new Error("Erreur lors de la sauvegarde");
-  }
-  return data;
+  await writeFile(path.join(STORAGE_DIR, uniqueFileName), buffer);
+  return { path: uniqueFileName };
 };
 
-export const deleteDocumentFile = async (path: string) => {
-  const { error } = await supabase.storage.from("documents").remove([path]);
-  if (error) {
-    console.error(error);
-    throw new Error("Erreur lors de la suppression du fichier");
-  }
+export const deleteDocumentFile = async (fileName: string) => {
+  await unlink(path.join(STORAGE_DIR, fileName));
 };

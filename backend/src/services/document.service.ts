@@ -26,3 +26,13 @@ export const deleteDocument = async (id: string, userId: string) => {
   await deleteDocumentFile(document.url);
   await prisma.document.delete({ where: { id } });
 };
+
+export const getDocumentForDownload = async (id: string, userId: string) => {
+  const document = await prisma.document.findUnique({
+    where: { id },
+    include: { property: { include: { profile: true } } },
+  });
+  if (!document) throw new Error("Document non trouvé");
+  if (!document.property || document.property.profile.userId !== userId) throw new Error("Non autorisé");
+  return document;
+};
