@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteDocument, getDocumentsByProperty, uploadDocument } from "../services/documentService";
+import { deleteDocument, downloadDocument, getDocumentsByProperty, uploadDocument } from "../services/documentService";
 
 export const useUploadDocument = () => {
   const queryClient = useQueryClient();
@@ -22,6 +22,18 @@ export const useGetDocuments = (propertyId: string) => {
     enabled: !!propertyId,
   });
   return { documents, isPending, isError };
+};
+
+export const useDownloadDocument = () => {
+  return useMutation({
+    mutationFn: downloadDocument,
+    onSuccess: (blob) => {
+      const objectUrl = URL.createObjectURL(blob);
+      window.open(objectUrl, "_blank", "noopener,noreferrer");
+      // Révoqué après un délai plutôt qu'immédiatement : le nouvel onglet a besoin de temps pour charger le blob.
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000);
+    },
+  });
 };
 
 export const useDeleteDocument = () => {

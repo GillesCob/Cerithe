@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
-import { useGetDocuments, useDeleteDocument } from "@/hooks/useDocument";
+import { useGetDocuments, useDeleteDocument, useDownloadDocument } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
 
 const FeatureComingSoonButton = ({ label }: { label: string }) => {
@@ -52,10 +52,15 @@ const PropertyPage = () => {
   const [isTransmitting, setIsTransmitting] = useState(false);
   const { documents } = useGetDocuments(id!);
   const { mutate: deleteDocument, isPending: isDeletingDocument } = useDeleteDocument();
+  const { mutate: downloadDocument, isPending: isDownloadingDocument } = useDownloadDocument();
 
   const handleDeleteDocument = (documentId: string) => {
     if (!window.confirm("Supprimer ce document ? Cette action est irréversible.")) return;
     deleteDocument(documentId, { onError: () => window.alert("Impossible de supprimer ce document.") });
+  };
+
+  const handleDownloadDocument = (documentId: string) => {
+    downloadDocument(documentId, { onError: () => window.alert("Impossible d'ouvrir ce document.") });
   };
 
   if (isPending)
@@ -122,14 +127,14 @@ const PropertyPage = () => {
           {documents && documents.length > 0 ? (
             documents.map((doc: IDocument) => (
               <div key={doc.id} className="flex items-center justify-between gap-2 py-3 border-b border-gray-100">
-                <a
-                  href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/documents/${doc.url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="min-w-0 truncate text-sm text-blue-600 hover:underline"
+                <button
+                  type="button"
+                  onClick={() => handleDownloadDocument(doc.id)}
+                  disabled={isDownloadingDocument}
+                  className="min-w-0 truncate text-sm text-blue-600 hover:underline text-left disabled:opacity-50"
                 >
                   {doc.title}
-                </a>
+                </button>
                 <button
                   onClick={() => handleDeleteDocument(doc.id)}
                   disabled={isDeletingDocument}
