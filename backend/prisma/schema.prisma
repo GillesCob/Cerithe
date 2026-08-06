@@ -42,7 +42,7 @@ model Profile {
   property Property[]
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   transmissionAsSeller Transmission[] @relation("previousOwner")
   transmissionAsBuyer  Transmission[] @relation("newOwner")
@@ -67,7 +67,7 @@ model Property {
   transmission Transmission[]
 
   profileId         String
-  profile           Profile             @relation(fields: [profileId], references: [id])
+  profile           Profile             @relation(fields: [profileId], references: [id], onDelete: Cascade)
   transmissionToken TransmissionToken[]
 }
 
@@ -152,8 +152,8 @@ model Transmission {
 
   previousOwnerId String
   newOwnerId      String
-  previousOwner   Profile @relation("previousOwner", fields: [previousOwnerId], references: [id])
-  newOwner        Profile @relation("newOwner", fields: [newOwnerId], references: [id])
+  previousOwner   Profile @relation("previousOwner", fields: [previousOwnerId], references: [id], onDelete: Cascade)
+  newOwner        Profile @relation("newOwner", fields: [newOwnerId], references: [id], onDelete: Cascade)
 }
 
 model TransmissionToken {

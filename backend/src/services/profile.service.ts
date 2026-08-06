@@ -35,5 +35,16 @@ export const deleteProfile = async (id: string, userId: string) => {
   const profileExist = await prisma.profile.findUnique({ where: { id } });
   if (!profileExist) throw new Error("Profil non trouvé");
   if (profileExist.userId !== userId) throw new Error("Non autorisé");
+
+  // Un compte a toujours au moins un profil (cf cerithe-decisions-produit.md, 05/08) : supprimer
+  // le seul profil restant reviendrait a supprimer le compte sans le dire. La suppression du
+  // compte lui-meme est une action distincte (DELETE /api/users/me).
+  const remainingProfiles = await prisma.profile.count({ where: { userId } });
+  if (remainingProfiles <= 1) {
+    throw new Error("Impossible de supprimer votre unique profil, supprimez votre compte à la place.");
+  }
+
+  // Cascade en base (onDelete: Cascade sur Property.profile, Transmission.previousOwner/newOwner) :
+  // supprime aussi tous les biens et l'historique de transmission possedes par ce profil.
   await prisma.profile.delete({ where: { id } });
 };

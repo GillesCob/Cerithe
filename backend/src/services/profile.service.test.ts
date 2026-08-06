@@ -84,8 +84,19 @@ describe("deleteProfile", () => {
     await expect(deleteProfile(profileId, userId)).rejects.toThrow("Non autorisé");
   });
 
-  it("supprime le profil si l'appelant est le propriétaire", async () => {
+  it("rejette si c'est l'unique profil de l'utilisateur (cf cerithe-decisions-produit.md, 05/08)", async () => {
     prismaMock.profile.findUnique.mockResolvedValue({ id: profileId, userId } as any);
+    prismaMock.profile.count.mockResolvedValue(1);
+
+    await expect(deleteProfile(profileId, userId)).rejects.toThrow(
+      "Impossible de supprimer votre unique profil, supprimez votre compte à la place.",
+    );
+    expect(prismaMock.profile.delete).not.toHaveBeenCalled();
+  });
+
+  it("supprime le profil si l'appelant est le propriétaire et qu'il reste un autre profil", async () => {
+    prismaMock.profile.findUnique.mockResolvedValue({ id: profileId, userId } as any);
+    prismaMock.profile.count.mockResolvedValue(2);
     prismaMock.profile.delete.mockResolvedValue({ id: profileId } as any);
 
     await deleteProfile(profileId, userId);
