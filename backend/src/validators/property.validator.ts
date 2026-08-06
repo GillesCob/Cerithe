@@ -6,6 +6,7 @@ export const propertySchema = z.object({
   houseType: z.enum(["HOUSE", "APPARTMENT"]),
   surface: z.number(),
   numberOfLevels: z.number(),
+  profileId: z.string().min(1),
 });
 
 export type PropertyDto = z.infer<typeof propertySchema>;
