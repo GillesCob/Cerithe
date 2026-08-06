@@ -32,6 +32,7 @@ model Profile {
   id          String      @id @default(uuid())
   firstName   String?     @db.VarChar(50)
   lastName    String?     @db.VarChar(50)
+  companyName String?     @db.VarChar(100)
   phoneNumber String?
   role        profileRole
 

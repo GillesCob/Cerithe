@@ -8,9 +8,9 @@ import {
 } from "../services/profile.service";
 
 export const createProfileController = async (req: Request, res: Response) => {
-  const { firstName, lastName, phoneNumber, role } = req.body;
+  const { firstName, lastName, companyName, phoneNumber, role } = req.body;
   const userId = req.user?.userId;
-  const data = { firstName, lastName, phoneNumber, role };
+  const data = { firstName, lastName, companyName: companyName ?? null, phoneNumber, role };
 
   if (!userId) return res.status(500).json({ message: "Impossible de créer le profil" });
   try {
@@ -51,8 +51,8 @@ export const updateProfileController = async (req: Request, res: Response) => {
   const idProfileToUpdate = req.params.id as string;
   const userId = req.user?.userId;
   if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
-  const { firstName, lastName, phoneNumber, role } = req.body;
-  const data = { firstName, lastName, phoneNumber, role };
+  const { firstName, lastName, companyName, phoneNumber, role } = req.body;
+  const data = { firstName, lastName, companyName: companyName ?? null, phoneNumber, role };
 
   try {
     const profileToUpdate = await updateProfile(idProfileToUpdate, userId, data);
