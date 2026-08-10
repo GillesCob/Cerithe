@@ -22,3 +22,8 @@ export const deleteDocument = async (id: string) => {
   const response = await apiClient.delete(`/api/documents/${id}`);
   return response.data;
 };
+
+export const downloadDocument = async (id: string) => {
+  const response = await apiClient.get(`/api/documents/${id}/download`, { responseType: "blob" });
+  return response.data as Blob;
+};

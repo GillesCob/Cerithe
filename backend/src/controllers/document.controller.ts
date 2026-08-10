@@ -1,16 +1,25 @@
 import type { Request, Response } from "express";
 import { uploadDocument } from "../services/storage.service";
-import { createDocument, getDocumentsByProperty, deleteDocument } from "../services/document.service";
+import { createDocument, getDocumentsByProperty, deleteDocument, getDocumentForDownload } from "../services/document.service";
 import type { documentType } from "../../prisma/generated/enums";
+
+// Le bucket Supabase limitait déjà l'upload à ces 3 types (contrôle multer/Zod en amont côté formulaire) :
+// pas de nouvelle validation ajoutée ici, juste de quoi mettre le bon Content-Type au moment du téléchargement.
+const MIME_TYPES_BY_EXTENSION: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+};
 
 export const createDocumentController = async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ message: "Aucun fichier reçu" });
-  const { buffer, originalname, mimetype } = req.file;
+  const { buffer, originalname } = req.file;
   const propertyId = req.body.propertyId as string;
   const type = req.body.documentType as documentType;
 
   try {
-    const newDocument = await uploadDocument(buffer, originalname, mimetype);
+    const newDocument = await uploadDocument(buffer, originalname);
 
     const newDbEntry = await createDocument(originalname, type, newDocument.path, propertyId);
     return res.status(201).json({ newDocument, newDbEntry });
@@ -28,6 +37,26 @@ export const getDocumentsByPropertyController = async (req: Request, res: Respon
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Erreur lors de la récupération des documents" });
+  }
+};
+
+export const downloadDocumentController = async (req: Request, res: Response) => {
+  const documentId = req.params.id as string;
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+
+  try {
+    const document = await getDocumentForDownload(documentId, userId);
+    const extension = document.url.split(".").pop()?.toLowerCase() ?? "";
+    const contentType = MIME_TYPES_BY_EXTENSION[extension] ?? "application/octet-stream";
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(document.title)}"`);
+    res.setHeader("X-Accel-Redirect", `/internal-documents/${document.url}`);
+    return res.status(200).end();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Problème lors du téléchargement du document";
+    return res.status(500).json({ message });
   }
 };
 

@@ -1,0 +1,11 @@
+services:
+  cerithe-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    network_mode: host
+    env_file:
+      - .env.prod
+    volumes:
+      - /home/gilles/Cerithe/storage/documents:/app/storage/documents
+    restart: always

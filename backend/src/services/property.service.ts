@@ -20,7 +20,7 @@ export const allOwnerProperties = async (profileIds: string[]) => {
 
 export const updateProperty = async (id: string, userId: string, data: Partial<PropertyDto>) => {
   const property = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
-  if (!property) throw new Error("Erreur lors de la mise à jour du bien");
+  if (!property) throw new Error("Bien non trouvé");
   if (property.profile.userId !== userId) throw new Error("Non autorisé");
   const propertyModified = await prisma.property.update({ where: { id }, data });
   return propertyModified;
