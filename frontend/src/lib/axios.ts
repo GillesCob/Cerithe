@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import { useTokenStore } from "../stores/authStore";
+import { useActiveProfileStore } from "../stores/activeProfileStore";
 import { refreshAccessToken } from "../services/authService";
 
 interface IRetryableRequestConfig extends InternalAxiosRequestConfig {
@@ -81,6 +82,7 @@ apiClient.interceptors.response.use(
       pendingRequests.forEach(({ reject }) => reject(refreshError));
       pendingRequests = [];
       useTokenStore.getState().logout();
+      useActiveProfileStore.getState().clearActiveProfileId();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
