@@ -52,7 +52,13 @@ export const updateProfileController = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
   const { firstName, lastName, companyName, phoneNumber, role } = req.body;
-  const data = { firstName, lastName, companyName: companyName ?? null, phoneNumber, role };
+  const data = {
+    firstName: firstName ?? null,
+    lastName: lastName ?? null,
+    companyName: companyName ?? null,
+    phoneNumber: phoneNumber ?? null,
+    role,
+  };
 
   try {
     const profileToUpdate = await updateProfile(idProfileToUpdate, userId, data);
