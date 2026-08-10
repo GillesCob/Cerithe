@@ -6,20 +6,20 @@ import {
   updateProperty,
   deleteProperty,
 } from "../services/property.service";
-import { allUserProfiles } from "../services/profile.service";
+import { getProfileById } from "../services/profile.service";
 
 export const createPropertyController = async (req: Request, res: Response) => {
-  const { name, address, houseType, surface, numberOfLevels } = req.body;
-  const data = { name, address, houseType, surface, numberOfLevels };
+  const { name, address, houseType, surface, numberOfLevels, profileId } = req.body;
+  const data = { name, address, houseType, surface, numberOfLevels, profileId };
 
   const userId = req.user?.userId;
   if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
 
   try {
-    const profiles = await allUserProfiles(userId);
-    const profileId = profiles[0]?.id;
-    if (!profileId) return res.status(500).json({ message: "Impossible de créer le bien" });
-    const newProperty = await createProperty(data, profileId);
+    // Le profil actif est choisi par le client (navbar/switcher), jamais devine cote serveur.
+    // getProfileById verifie que ce profil appartient bien a l'utilisateur connecte.
+    await getProfileById(profileId, userId);
+    const newProperty = await createProperty(data);
     return res.status(201).json(newProperty);
   } catch (error) {
     console.error(error);
@@ -45,17 +45,18 @@ export const readOnePropertyController = async (req: Request, res: Response) => 
 export const readManyPropertiesController = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+  const profileId = req.query.profileId as string;
+  if (!profileId) return res.status(400).json({ message: "profileId manquant" });
 
   try {
-    const profiles = await allUserProfiles(userId);
-    if (profiles.length === 0) return res.status(500).json({ message: "Biens non trouvés" });
-    // Un bien appartient à un profil précis, mais "Mes biens" doit montrer les biens de tous les profils
-    // de l'utilisateur (pas seulement le premier) : sinon un bien transmis à un 2e profil devient invisible.
-    const profileIds = profiles.map((profile) => profile.id);
-    const myProperties = await allOwnerProperties(profileIds);
+    // Filtre strict sur le profil actif choisi par le client : jamais de melange des biens
+    // entre profils sur une meme page (cf cerithe-decisions-produit.md, 29/07).
+    await getProfileById(profileId, userId);
+    const myProperties = await allOwnerProperties(profileId);
     return res.status(200).json(myProperties);
   } catch (error) {
-    return res.status(500).json({ message: "Biens non trouvés" });
+    const message = error instanceof Error ? error.message : "Biens non trouvés";
+    return res.status(500).json({ message });
   }
 };
 

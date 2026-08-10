@@ -28,17 +28,16 @@ describe("createProperty", () => {
     houseType: "HOUSE" as const,
     surface: 90,
     numberOfLevels: 2,
+    profileId,
   };
 
-  it("crée le bien avec le profileId fourni", async () => {
-    prismaMock.property.create.mockResolvedValue({ id: "property-1", ...data, profileId } as any);
+  it("crée le bien avec le profileId fourni dans data", async () => {
+    prismaMock.property.create.mockResolvedValue({ id: "property-1", ...data } as any);
 
-    const result = await createProperty(data, profileId);
+    const result = await createProperty(data);
 
-    expect(prismaMock.property.create).toHaveBeenCalledWith({
-      data: { ...data, profileId },
-    });
-    expect(result).toEqual({ id: "property-1", ...data, profileId });
+    expect(prismaMock.property.create).toHaveBeenCalledWith({ data });
+    expect(result).toEqual({ id: "property-1", ...data });
   });
 });
 
@@ -72,27 +71,22 @@ describe("getPropertyById", () => {
 });
 
 describe("allOwnerProperties", () => {
-  it("renvoie une liste vide si aucun profileId n'est fourni", async () => {
+  it("renvoie une liste vide si le profil actif n'a aucun bien", async () => {
     prismaMock.property.findMany.mockResolvedValue([]);
 
-    const result = await allOwnerProperties([]);
+    const result = await allOwnerProperties("profile-1");
 
-    expect(prismaMock.property.findMany).toHaveBeenCalledWith({ where: { profileId: { in: [] } } });
+    expect(prismaMock.property.findMany).toHaveBeenCalledWith({ where: { profileId: "profile-1" } });
     expect(result).toEqual([]);
   });
 
-  it("agrège les biens de plusieurs profileIds (comportement actuel, cf cerithe-dette.md)", async () => {
-    const properties = [
-      { id: "property-1", profileId: "profile-1" },
-      { id: "property-2", profileId: "profile-2" },
-    ];
+  it("filtre strictement sur le profil actif, jamais les biens des autres profils (cf cerithe-decisions-produit.md, 29/07)", async () => {
+    const properties = [{ id: "property-1", profileId: "profile-1" }];
     prismaMock.property.findMany.mockResolvedValue(properties as any);
 
-    const result = await allOwnerProperties(["profile-1", "profile-2"]);
+    const result = await allOwnerProperties("profile-1");
 
-    expect(prismaMock.property.findMany).toHaveBeenCalledWith({
-      where: { profileId: { in: ["profile-1", "profile-2"] } },
-    });
+    expect(prismaMock.property.findMany).toHaveBeenCalledWith({ where: { profileId: "profile-1" } });
     expect(result).toEqual(properties);
   });
 });
