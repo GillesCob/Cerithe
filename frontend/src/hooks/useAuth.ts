@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { login, logout, register, forgotPassword, resetPassword } from "../services/authService";
 import { useTokenStore } from "../stores/authStore";
+import { useActiveProfileStore } from "../stores/activeProfileStore";
 
 export const useAuth = () => {
   const navigate = useNavigate();
   const { setAccessToken, logout: clearAccessToken } = useTokenStore();
+  const clearActiveProfileId = useActiveProfileStore((state) => state.clearActiveProfileId);
 
   const handleRegister = async (email: string, password: string, redirectTo?: string) => {
     const newUser = await register(email, password);
@@ -23,6 +25,7 @@ export const useAuth = () => {
   const handleLogout = async () => {
     await logout();
     clearAccessToken();
+    clearActiveProfileId();
     navigate("/login");
   };
 
