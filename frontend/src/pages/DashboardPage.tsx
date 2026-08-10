@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
 import { useGetProperties } from "../hooks/useProperty";
-import { useAuth } from "../hooks/useAuth";
 import type { IProperty } from "../types/property";
 import { PropertyCard } from "@/components/property/PropertyCard";
+import Navbar from "@/components/layout/Navbar";
 import { Loader2 } from "lucide-react";
 
 const DashboardPage = () => {
   const { properties, isPending, isError } = useGetProperties();
-  const { handleLogout } = useAuth();
   if (isPending)
     return (
       <div className="flex justify-center py-16">
@@ -18,13 +17,7 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-dvh bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 px-6 flex items-center justify-between">
-        <img src="/logo-cerithe.png" alt="Cerithe" className="h-25 w-auto" />
-        <button onClick={handleLogout} className="text-sm text-gray-600 hover:text-gray-900">
-          Déconnexion
-        </button>
-      </nav>
+      <Navbar />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Mes biens</h2>
