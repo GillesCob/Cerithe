@@ -79,8 +79,12 @@ const AccountPage = () => {
     setEditing(null);
   };
 
-  const removeProfile = async (p: IProfile) => {
-    await deleteProfile.mutateAsync(p.id);
+  const removeEditingProfile = async () => {
+    if (!editing) return;
+    if (!window.confirm("Supprimer ce profil ? Tous les biens associés seront supprimés avec lui. Cette action est irréversible."))
+      return;
+    await deleteProfile.mutateAsync(editing.id);
+    setEditing(null);
   };
 
   const submitCreate = async () => {
@@ -144,14 +148,6 @@ const AccountPage = () => {
                 <span className="text-gray-900">{p.email}</span>
               </div>
             </div>
-            {list.length > 1 && (
-              <button
-                onClick={() => removeProfile(p)}
-                className="mt-3 text-sm text-red-600 hover:underline"
-              >
-                Supprimer ce profil
-              </button>
-            )}
           </div>
         ))}
 
@@ -219,6 +215,27 @@ const AccountPage = () => {
                 onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
               />
             </label>
+
+            {list.length > 1 ? (
+              <button type="button" onClick={removeEditingProfile} className="text-sm text-red-600 hover:underline">
+                Supprimer ce profil
+              </button>
+            ) : (
+              <p className="text-sm text-gray-500">
+                Impossible de supprimer votre unique profil.{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditing(null);
+                    setConfirmDeleteAccount(true);
+                  }}
+                  className="text-red-600 hover:underline"
+                >
+                  Supprimer mon compte
+                </button>{" "}
+                à la place.
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>
