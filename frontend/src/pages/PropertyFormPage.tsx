@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useCreateProperty, useDeleteProperty, useGetPropertyById, useUpdateProperty } from "../hooks/useProperty";
+import { useActiveProfileStore } from "@/stores/activeProfileStore";
 
 interface IPropertyForm {
   name: string;
@@ -16,6 +17,7 @@ const PropertyFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const isEditing = !!id;
   const navigate = useNavigate();
+  const activeProfileId = useActiveProfileStore((state) => state.activeProfileId);
   const { property, isPending: isLoadingProperty } = useGetPropertyById(id ?? "");
   const { mutate: createProperty, isPending: isCreating } = useCreateProperty();
   const { mutate: updateProperty, isPending: isUpdating } = useUpdateProperty();
@@ -43,7 +45,8 @@ const PropertyFormPage = () => {
     if (isEditing) {
       updateProperty({ id, ...payload }, { onSuccess: () => navigate(`/property/${id}`) });
     } else {
-      createProperty(payload, { onSuccess: () => navigate("/dashboard") });
+      if (!activeProfileId) return;
+      createProperty({ ...payload, profileId: activeProfileId }, { onSuccess: () => navigate("/dashboard") });
     }
   };
 
