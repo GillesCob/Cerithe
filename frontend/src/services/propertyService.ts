@@ -6,6 +6,7 @@ export const addProperty = async (data: {
   houseType: string;
   surface: number;
   numberOfLevels: number;
+  profileId: string;
 }) => {
   const response = await apiClient.post("/api/properties", data);
   return response.data;
