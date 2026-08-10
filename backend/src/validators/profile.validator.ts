@@ -8,7 +8,11 @@ export const profileSchema = z.object({
     .min(1)
     .nullish()
     .transform((value) => value ?? null),
-  phoneNumber: z.string().min(1),
+  phoneNumber: z
+    .string()
+    .min(1)
+    .nullish()
+    .transform((value) => value ?? null),
   role: z.enum(["PROFESSIONAL", "INDIVIDUAL"]),
 });
 

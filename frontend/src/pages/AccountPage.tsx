@@ -61,7 +61,7 @@ const AccountPage = () => {
       firstName: p.firstName ?? "",
       lastName: p.lastName ?? "",
       companyName: p.companyName ?? "",
-      phoneNumber: "",
+      phoneNumber: p.phoneNumber ?? "",
     });
   };
 
@@ -73,6 +73,7 @@ const AccountPage = () => {
         firstName: editForm.firstName || undefined,
         lastName: editForm.lastName || undefined,
         companyName: editForm.role === "PROFESSIONAL" ? editForm.companyName || undefined : undefined,
+        phoneNumber: editForm.phoneNumber || undefined,
       },
     });
     setEditing(null);
@@ -130,6 +131,12 @@ const AccountPage = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Nom entreprise</span>
                   <span className="text-gray-900">{p.companyName || "Non renseigné"}</span>
+                </div>
+              )}
+              {p.phoneNumber && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Téléphone</span>
+                  <span className="text-gray-900">{p.phoneNumber}</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -202,6 +209,14 @@ const AccountPage = () => {
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                 value={editForm.lastName}
                 onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+              />
+            </label>
+            <label className="block text-sm">
+              Téléphone
+              <input
+                className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                value={editForm.phoneNumber}
+                onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
               />
             </label>
           </div>
