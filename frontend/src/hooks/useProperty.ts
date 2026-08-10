@@ -1,14 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addProperty, deleteProperty, getAllProperties, getPropertyById, updateProperty } from "../services/propertyService";
 
-export const useGetProperties = () => {
+export const useGetProperties = (profileId: string | null) => {
   const {
     data: properties,
     isPending,
     isError,
   } = useQuery({
-    queryKey: ["properties"],
-    queryFn: getAllProperties,
+    queryKey: ["properties", profileId],
+    queryFn: () => getAllProperties(profileId as string),
+    enabled: !!profileId,
   });
   return { properties, isPending, isError };
 };

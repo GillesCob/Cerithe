@@ -16,8 +16,8 @@ export const getPropertyById = async (id: string) => {
   return response.data;
 };
 
-export const getAllProperties = async () => {
-  const response = await apiClient.get(`/api/properties`);
+export const getAllProperties = async (profileId: string) => {
+  const response = await apiClient.get(`/api/properties`, { params: { profileId } });
   return response.data;
 };
 
