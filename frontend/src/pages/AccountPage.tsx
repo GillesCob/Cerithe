@@ -88,6 +88,7 @@ const AccountPage = () => {
       firstName: createForm.firstName || undefined,
       lastName: createForm.lastName || undefined,
       companyName: availableRoleForCreate === "PROFESSIONAL" ? createForm.companyName || undefined : undefined,
+      phoneNumber: createForm.phoneNumber || undefined,
     });
     setActiveProfileId(created.id);
     setCreating(false);
@@ -243,6 +244,14 @@ const AccountPage = () => {
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                 value={createForm.lastName}
                 onChange={(e) => setCreateForm({ ...createForm, lastName: e.target.value })}
+              />
+            </label>
+            <label className="block text-sm">
+              Téléphone
+              <input
+                className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                value={createForm.phoneNumber}
+                onChange={(e) => setCreateForm({ ...createForm, phoneNumber: e.target.value })}
               />
             </label>
           </div>
