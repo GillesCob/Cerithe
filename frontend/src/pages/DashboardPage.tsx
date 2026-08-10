@@ -3,10 +3,12 @@ import { useGetProperties } from "../hooks/useProperty";
 import type { IProperty } from "../types/property";
 import { PropertyCard } from "@/components/property/PropertyCard";
 import Navbar from "@/components/layout/Navbar";
+import { useActiveProfileStore } from "@/stores/activeProfileStore";
 import { Loader2 } from "lucide-react";
 
 const DashboardPage = () => {
-  const { properties, isPending, isError } = useGetProperties();
+  const activeProfileId = useActiveProfileStore((state) => state.activeProfileId);
+  const { properties, isPending, isError } = useGetProperties(activeProfileId);
   if (isPending)
     return (
       <div className="flex justify-center py-16">
