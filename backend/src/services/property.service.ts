@@ -1,8 +1,8 @@
 import prisma from "../lib/prisma.js";
 import type { PropertyDto } from "../validators/property.validator";
 
-export const createProperty = async (data: PropertyDto, profileId: string) => {
-  const newProperty = await prisma.property.create({ data: { ...data, profileId } });
+export const createProperty = async (data: PropertyDto) => {
+  const newProperty = await prisma.property.create({ data });
   return newProperty;
 };
 
@@ -13,8 +13,8 @@ export const getPropertyById = async (id: string, userId: string) => {
   return myProperty;
 };
 
-export const allOwnerProperties = async (profileIds: string[]) => {
-  const allProperties = await prisma.property.findMany({ where: { profileId: { in: profileIds } } });
+export const allOwnerProperties = async (profileId: string) => {
+  const allProperties = await prisma.property.findMany({ where: { profileId } });
   return allProperties;
 };
 

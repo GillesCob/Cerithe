@@ -29,6 +29,7 @@ export const registerController = async (req: Request, res: Response) => {
     const data = {
       firstName: "",
       lastName: "",
+      companyName: null,
       phoneNumber: "",
       role: "INDIVIDUAL" as profileRole,
     };

@@ -8,9 +8,9 @@ import {
 } from "../services/profile.service";
 
 export const createProfileController = async (req: Request, res: Response) => {
-  const { firstName, lastName, phoneNumber, role } = req.body;
+  const { firstName, lastName, companyName, phoneNumber, role } = req.body;
   const userId = req.user?.userId;
-  const data = { firstName, lastName, phoneNumber, role };
+  const data = { firstName, lastName, companyName: companyName ?? null, phoneNumber, role };
 
   if (!userId) return res.status(500).json({ message: "Impossible de créer le profil" });
   try {
@@ -25,11 +25,15 @@ export const createProfileController = async (req: Request, res: Response) => {
 
 export const readOneProfileController = async (req: Request, res: Response) => {
   const profileId = req.params.id as string;
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+
   try {
-    const myProfile = await getProfileById(profileId);
+    const myProfile = await getProfileById(profileId, userId);
     return res.status(200).json(myProfile);
   } catch (error) {
-    return res.status(500).json({ message: "Profil non trouvé" });
+    const message = error instanceof Error ? error.message : "Profil non trouvé";
+    return res.status(500).json({ message });
   }
 };
 
@@ -45,25 +49,30 @@ export const readManyProfilesController = async (req: Request, res: Response) =>
 
 export const updateProfileController = async (req: Request, res: Response) => {
   const idProfileToUpdate = req.params.id as string;
-  const { firstName, lastName, phoneNumber, role } = req.body;
-  const data = { firstName, lastName, phoneNumber, role };
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+  const { firstName, lastName, companyName, phoneNumber, role } = req.body;
+  const data = { firstName, lastName, companyName: companyName ?? null, phoneNumber, role };
 
   try {
-    const profileToUpdate = await updateProfile(idProfileToUpdate, data);
+    const profileToUpdate = await updateProfile(idProfileToUpdate, userId, data);
     return res.status(200).json(profileToUpdate);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Problème lors de la mise à jour du profil" });
+    const message = error instanceof Error ? error.message : "Problème lors de la mise à jour du profil";
+    return res.status(500).json({ message });
   }
 };
 
 export const deleteProfileController = async (req: Request, res: Response) => {
   const idProfileToDelete = req.params.id as string;
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
 
   try {
-    await deleteProfile(idProfileToDelete);
+    await deleteProfile(idProfileToDelete, userId);
     return res.status(204).send();
   } catch (error) {
-    return res.status(500).json({ message: "Problème rencontré lors de la suppression du profil" });
+    const message = error instanceof Error ? error.message : "Problème rencontré lors de la suppression du profil";
+    return res.status(500).json({ message });
   }
 };
