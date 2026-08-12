@@ -1,9 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useCreateProperty, useDeleteProperty, useGetPropertyById, useUpdateProperty } from "../hooks/useProperty";
+import {
+  useCreateProperty,
+  useDeleteProperty,
+  useGetPropertyById,
+  useUpdateProperty,
+  useTransferPropertyOwner,
+} from "../hooks/useProperty";
 import { useActiveProfileStore } from "@/stores/activeProfileStore";
+import { useGetAllProfiles } from "@/hooks/useProfile";
+import PropertyOwnerSelector from "@/components/property/PropertyOwnerSelector";
 
 interface IPropertyForm {
   name: string;
@@ -18,13 +26,19 @@ const PropertyFormPage = () => {
   const isEditing = !!id;
   const navigate = useNavigate();
   const activeProfileId = useActiveProfileStore((state) => state.activeProfileId);
+  const setActiveProfileId = useActiveProfileStore((state) => state.setActiveProfileId);
   const { property, isPending: isLoadingProperty } = useGetPropertyById(id ?? "");
+  const { profiles } = useGetAllProfiles();
   const { mutate: createProperty, isPending: isCreating } = useCreateProperty();
   const { mutate: updateProperty, isPending: isUpdating } = useUpdateProperty();
+  const { mutate: transferPropertyOwner, isPending: isTransferring } = useTransferPropertyOwner();
   const { mutate: deleteProperty, isPending: isDeleting } = useDeleteProperty();
   const { register, handleSubmit, reset } = useForm<IPropertyForm>();
-  const isPending = isCreating || isUpdating;
+  const [ownerId, setOwnerId] = useState<string>("");
+  const [transferError, setTransferError] = useState<string | null>(null);
+  const isPending = isCreating || isUpdating || isTransferring;
   const backTo = isEditing ? `/property/${id}` : "/dashboard";
+  const canTransferOwner = isEditing && (profiles?.length ?? 0) > 1;
 
   const handleDelete = () => {
     if (!window.confirm("Supprimer ce bien ? Tous les documents associés seront supprimés avec lui. Cette action est irréversible."))
@@ -35,15 +49,50 @@ const PropertyFormPage = () => {
     });
   };
 
-  // En mode édition, on préremplit le formulaire une fois le bien chargé.
+  // En mode édition, on préremplit le formulaire une fois le bien chargé, y
+  // compris le propriétaire actuel du sélecteur (reste local jusqu'à "Valider").
   useEffect(() => {
-    if (property) reset(property);
+    if (property) {
+      reset(property);
+      setOwnerId(property.profileId);
+    }
   }, [property, reset]);
 
   const onSubmit = (data: IPropertyForm) => {
     const payload = { ...data, surface: Number(data.surface), numberOfLevels: Number(data.numberOfLevels) };
+    setTransferError(null);
+
     if (isEditing) {
-      updateProperty({ id, ...payload }, { onSuccess: () => navigate(`/property/${id}`) });
+      const ownerChanged = canTransferOwner && property && ownerId !== property.profileId;
+      updateProperty(
+        { id, ...payload },
+        {
+          onSuccess: () => {
+            if (!ownerChanged) {
+              navigate(`/property/${id}`);
+              return;
+            }
+            // Le changement de propriétaire n'est tenté qu'une fois les autres
+            // champs enregistrés avec succès, jamais l'inverse : en cas d'échec
+            // ici, les autres champs restent quand même sauvegardés.
+            transferPropertyOwner(
+              { id: id!, profileId: ownerId },
+              {
+                onSuccess: () => {
+                  // Le profil actif bascule sur le nouveau proprietaire : sinon "Mes biens"
+                  // reste filtre sur l'ancien profil et le bien semble avoir disparu au retour.
+                  setActiveProfileId(ownerId);
+                  navigate(`/property/${id}`);
+                },
+                onError: () =>
+                  setTransferError(
+                    "Les autres modifications ont été enregistrées, mais le changement de propriétaire a échoué. Réessayez.",
+                  ),
+              },
+            );
+          },
+        },
+      );
     } else {
       if (!activeProfileId) return;
       createProperty({ ...payload, profileId: activeProfileId }, { onSuccess: () => navigate("/dashboard") });
@@ -70,6 +119,12 @@ const PropertyFormPage = () => {
           className="bg-white p-8 rounded-2xl border border-gray-200 w-full flex flex-col gap-4"
         >
           <h1 className="text-xl font-bold text-gray-900">{isEditing ? "Modifier le bien" : "Ajouter un bien"}</h1>
+
+          {canTransferOwner && profiles && (
+            <PropertyOwnerSelector profiles={profiles} value={ownerId} onChange={setOwnerId} />
+          )}
+
+          {transferError && <p className="text-sm text-red-600">{transferError}</p>}
 
           <input {...register("name")} placeholder="Nom du bien" className="border border-gray-200 rounded-lg px-4 py-2 text-base" />
           <input {...register("address")} placeholder="Adresse" className="border border-gray-200 rounded-lg px-4 py-2 text-base" />

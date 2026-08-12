@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addProperty, deleteProperty, getAllProperties, getPropertyById, updateProperty } from "../services/propertyService";
+import {
+  addProperty,
+  deleteProperty,
+  getAllProperties,
+  getPropertyById,
+  updateProperty,
+  transferPropertyOwner,
+} from "../services/propertyService";
 
 export const useGetProperties = (profileId: string | null) => {
   const {
@@ -51,6 +58,17 @@ export const useUpdateProperty = () => {
   return useMutation({
     mutationFn: ({ id, name, address, houseType, surface, numberOfLevels }: IUpdatePropertyPayload) =>
       updateProperty(id, name, address, houseType, surface, numberOfLevels),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      queryClient.invalidateQueries({ queryKey: ["property", variables.id] });
+    },
+  });
+};
+
+export const useTransferPropertyOwner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, profileId }: { id: string; profileId: string }) => transferPropertyOwner(id, profileId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["properties"] });
       queryClient.invalidateQueries({ queryKey: ["property", variables.id] });

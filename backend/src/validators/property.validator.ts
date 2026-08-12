@@ -10,3 +10,9 @@ export const propertySchema = z.object({
 });
 
 export type PropertyDto = z.infer<typeof propertySchema>;
+
+export const transferPropertyOwnerSchema = z.object({
+  profileId: z.string().min(1),
+});
+
+export type TransferPropertyOwnerDto = z.infer<typeof transferPropertyOwnerSchema>;

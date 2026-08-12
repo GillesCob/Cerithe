@@ -1,21 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { useGetAllProfiles } from "@/hooks/useProfile";
 import { useActiveProfileStore } from "@/stores/activeProfileStore";
 import { useAuth } from "@/hooks/useAuth";
 import type { IProfile } from "@/types/profile";
+import { roleLabel, displayName } from "@/utils/profileDisplay";
 
-const roleLabel = (role: string) => (role === "PROFESSIONAL" ? "Professionnel" : "Particulier");
-
-const displayName = (profile: IProfile) =>
-  profile.role === "PROFESSIONAL" ? (profile.companyName ?? profile.firstName ?? "") : (profile.firstName ?? "");
+// Pages communes aux profils d'un compte : on y reste au changement de profil plutot que
+// de rediriger vers le Dashboard, extensible sans retoucher le handler de switch.
+const PROFILE_SWITCH_EXEMPT_ROUTES = ["/account"];
 
 const Navbar = () => {
   const { profiles } = useGetAllProfiles();
   const { activeProfileId, setActiveProfileId } = useActiveProfileStore();
   const { handleLogout } = useAuth();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const active = profiles?.find((p: IProfile) => p.id === activeProfileId) ?? profiles?.[0];
 
@@ -73,6 +75,9 @@ const Navbar = () => {
                       onClick={() => {
                         setActiveProfileId(other.id);
                         setOpen(false);
+                        if (!PROFILE_SWITCH_EXEMPT_ROUTES.includes(location.pathname)) {
+                          navigate("/dashboard");
+                        }
                       }}
                       className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg hover:bg-gray-50 text-left"
                     >

@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma.js";
 import type { PropertyDto } from "../validators/property.validator";
+import { getProfileById } from "./profile.service";
 
 export const createProperty = async (data: PropertyDto) => {
   const newProperty = await prisma.property.create({ data });
@@ -24,6 +25,40 @@ export const updateProperty = async (id: string, userId: string, data: Partial<P
   if (property.profile.userId !== userId) throw new Error("Non autorisé");
   const propertyModified = await prisma.property.update({ where: { id }, data });
   return propertyModified;
+};
+
+// Bascule d'un bien entre deux profils du meme compte (v1.5.0). Distinct de
+// confirmTransmissionToken (transmission.service.ts) qui gere une transmission
+// vers un tiers : ce flux-ci reste interne au compte connecte, d'ou les deux
+// controles specifiques ci-dessous absents du pattern reutilise.
+export const transferPropertyOwner = async (id: string, userId: string, newProfileId: string) => {
+  const property = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
+  if (!property) throw new Error("Bien non trouvé");
+  if (property.profile.userId !== userId) throw new Error("Non autorisé");
+
+  // Verifie que le nouveau profil appartient bien au meme compte : getProfileById
+  // rejette deja si ce n'est pas le cas (throw "Non autorise"), sans quoi ce bien
+  // serait transferable vers n'importe quel profil de la plateforme.
+  await getProfileById(newProfileId, userId);
+
+  if (property.profileId === newProfileId) throw new Error("Ce bien appartient déjà à ce profil");
+
+  // Une transmission active (token en attente/accepte) bloque le changement de
+  // propriétaire tant qu'elle n'est pas annulée : activePropertyId ne vaut
+  // l'id du bien que pour une transmission encore active (cf schema.prisma).
+  const activeTransmission = await prisma.transmissionToken.findUnique({ where: { activePropertyId: id } });
+  if (activeTransmission) throw new Error("Une transmission est en cours sur ce bien, impossible de changer de propriétaire");
+
+  const previousOwnerId = property.profileId;
+
+  const [updatedProperty] = await prisma.$transaction([
+    prisma.property.update({ where: { id }, data: { profileId: newProfileId } }),
+    prisma.transmission.create({
+      data: { propertyId: id, previousOwnerId, newOwnerId: newProfileId },
+    }),
+  ]);
+
+  return updatedProperty;
 };
 
 export const deleteProperty = async (id: string, userId: string) => {
