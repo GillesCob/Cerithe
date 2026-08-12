@@ -26,6 +26,7 @@ const PropertyFormPage = () => {
   const isEditing = !!id;
   const navigate = useNavigate();
   const activeProfileId = useActiveProfileStore((state) => state.activeProfileId);
+  const setActiveProfileId = useActiveProfileStore((state) => state.setActiveProfileId);
   const { property, isPending: isLoadingProperty } = useGetPropertyById(id ?? "");
   const { profiles } = useGetAllProfiles();
   const { mutate: createProperty, isPending: isCreating } = useCreateProperty();
@@ -77,7 +78,12 @@ const PropertyFormPage = () => {
             transferPropertyOwner(
               { id: id!, profileId: ownerId },
               {
-                onSuccess: () => navigate(`/property/${id}`),
+                onSuccess: () => {
+                  // Le profil actif bascule sur le nouveau proprietaire : sinon "Mes biens"
+                  // reste filtre sur l'ancien profil et le bien semble avoir disparu au retour.
+                  setActiveProfileId(ownerId);
+                  navigate(`/property/${id}`);
+                },
                 onError: () =>
                   setTransferError(
                     "Les autres modifications ont été enregistrées, mais le changement de propriétaire a échoué. Réessayez.",

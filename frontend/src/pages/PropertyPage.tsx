@@ -6,6 +6,7 @@ import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
 import { useGetDocuments, useDeleteDocument, useDownloadDocument } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
+import Navbar from "@/components/layout/Navbar";
 
 const FeatureComingSoonButton = ({ label }: { label: string }) => {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -63,17 +64,35 @@ const PropertyPage = () => {
     downloadDocument(documentId, { onError: () => window.alert("Impossible d'ouvrir ce document.") });
   };
 
+  // Navbar toujours montee, avant les etats de chargement/erreur (meme raison que
+  // DashboardPage, cf son commentaire) : elle ne depend pas de ce bien pour s'afficher.
   if (isPending)
     return (
-      <div className="flex justify-center py-16">
-        <Loader2 className="animate-spin text-gray-400" />
+      <div className="min-h-dvh bg-gray-50">
+        <Navbar />
+        <div className="flex justify-center py-16">
+          <Loader2 className="animate-spin text-gray-400" />
+        </div>
       </div>
     );
-  if (isError) return <div className="p-8">Erreur</div>;
-  if (!property) return <div className="p-8">Bien introuvable</div>;
+  if (isError)
+    return (
+      <div className="min-h-dvh bg-gray-50">
+        <Navbar />
+        <div className="p-8">Erreur</div>
+      </div>
+    );
+  if (!property)
+    return (
+      <div className="min-h-dvh bg-gray-50">
+        <Navbar />
+        <div className="p-8">Bien introuvable</div>
+      </div>
+    );
 
   return (
     <div className="min-h-dvh bg-gray-50">
+      <Navbar />
       <div className="max-w-3xl mx-auto px-6 py-8">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-8">
           <ArrowLeft size={16} />
