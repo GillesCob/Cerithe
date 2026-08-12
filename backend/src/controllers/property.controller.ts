@@ -5,6 +5,7 @@ import {
   getPropertyById,
   updateProperty,
   deleteProperty,
+  transferPropertyOwner,
 } from "../services/property.service";
 import { getProfileById } from "../services/profile.service";
 
@@ -72,6 +73,21 @@ export const updatePropertyController = async (req: Request, res: Response) => {
     return res.status(200).json(propertyToUpdate);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Problème lors de la mise à jour du bien";
+    return res.status(500).json({ message });
+  }
+};
+
+export const transferPropertyOwnerController = async (req: Request, res: Response) => {
+  const propertyId = req.params.id as string;
+  const userId = req.user?.userId;
+  if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
+  const { profileId } = req.body;
+
+  try {
+    const updatedProperty = await transferPropertyOwner(propertyId, userId, profileId);
+    return res.status(200).json(updatedProperty);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Impossible de changer le propriétaire de ce bien";
     return res.status(500).json({ message });
   }
 };

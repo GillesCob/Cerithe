@@ -5,11 +5,7 @@ import { useGetAllProfiles } from "@/hooks/useProfile";
 import { useActiveProfileStore } from "@/stores/activeProfileStore";
 import { useAuth } from "@/hooks/useAuth";
 import type { IProfile } from "@/types/profile";
-
-const roleLabel = (role: string) => (role === "PROFESSIONAL" ? "Professionnel" : "Particulier");
-
-const displayName = (profile: IProfile) =>
-  profile.role === "PROFESSIONAL" ? (profile.companyName ?? profile.firstName ?? "") : (profile.firstName ?? "");
+import { roleLabel, displayName } from "@/utils/profileDisplay";
 
 const Navbar = () => {
   const { profiles } = useGetAllProfiles();

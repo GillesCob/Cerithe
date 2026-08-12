@@ -40,6 +40,11 @@ export const updateProperty = async (
   return response.data;
 };
 
+export const transferPropertyOwner = async (id: string, profileId: string) => {
+  const response = await apiClient.patch(`/api/properties/${id}/owner`, { profileId });
+  return response.data;
+};
+
 export const deleteProperty = async (id: string) => {
   const response = await apiClient.delete(`/api/properties/${id}`);
   return response.data;

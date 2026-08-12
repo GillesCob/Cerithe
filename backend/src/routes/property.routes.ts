@@ -6,8 +6,9 @@ import {
   readManyPropertiesController,
   readOnePropertyController,
   updatePropertyController,
+  transferPropertyOwnerController,
 } from "../controllers/property.controller";
-import { propertySchema } from "../validators/property.validator";
+import { propertySchema, transferPropertyOwnerSchema } from "../validators/property.validator";
 import { verifyAccessToken } from "../middlewares/auth.middleware";
 
 const propertyRouter = Router();
@@ -16,6 +17,12 @@ propertyRouter.post("/", verifyAccessToken, validate(propertySchema), createProp
 propertyRouter.get("/", verifyAccessToken, readManyPropertiesController);
 propertyRouter.get("/:id", verifyAccessToken, readOnePropertyController);
 propertyRouter.put("/:id", verifyAccessToken, updatePropertyController);
+propertyRouter.patch(
+  "/:id/owner",
+  verifyAccessToken,
+  validate(transferPropertyOwnerSchema),
+  transferPropertyOwnerController,
+);
 propertyRouter.delete("/:id", verifyAccessToken, deletePropertyController);
 
 export default propertyRouter;
