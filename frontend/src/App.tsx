@@ -9,6 +9,8 @@ import AccountPage from "./pages/AccountPage";
 import PropertyListPage from "./pages/PropertyListPage";
 import PropertyFormPage from "./pages/PropertyFormPage";
 import PropertyPage from "./pages/PropertyPage";
+import RoomPage from "./pages/RoomPage";
+import RoomFormPage from "./pages/RoomFormPage";
 import TransmissionPage from "./pages/TransmissionPage";
 import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
 import ScrollReset from "./components/layout/ScrollReset";
@@ -71,6 +73,22 @@ export default function App() {
           element={
             <ProtectedRoute>
               <PropertyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/room/:id"
+          element={
+            <ProtectedRoute>
+              <RoomPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/room-form/:id"
+          element={
+            <ProtectedRoute>
+              <RoomFormPage />
             </ProtectedRoute>
           }
         />
