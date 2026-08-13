@@ -37,7 +37,9 @@ describe("createProperty", () => {
 
     const result = await createProperty(data);
 
-    expect(prismaMock.property.create).toHaveBeenCalledWith({ data });
+    // numberOfBasementLevels absent de data : le service le complete a 0 (defaut explicite,
+    // cf property.service.ts) avant l'appel a Prisma.
+    expect(prismaMock.property.create).toHaveBeenCalledWith({ data: { ...data, numberOfBasementLevels: 0 } });
     expect(result).toEqual({ id: "property-1", ...data });
   });
 });
@@ -113,13 +115,59 @@ describe("updateProperty", () => {
   });
 
   it("met à jour le bien si l'appelant est le propriétaire", async () => {
-    prismaMock.property.findUnique.mockResolvedValue({ id: propertyId, profile: { userId } } as any);
+    prismaMock.property.findUnique.mockResolvedValue({ id: propertyId, profile: { userId }, room: [] } as any);
     prismaMock.property.update.mockResolvedValue({ id: propertyId, ...data } as any);
 
     const result = await updateProperty(propertyId, userId, data);
 
     expect(prismaMock.property.update).toHaveBeenCalledWith({ where: { id: propertyId }, data });
     expect(result).toEqual({ id: propertyId, ...data });
+  });
+
+  it("bloque la diminution de numberOfLevels si le bien a des pièces", async () => {
+    prismaMock.property.findUnique.mockResolvedValue({
+      id: propertyId,
+      profile: { userId },
+      numberOfLevels: 2,
+      numberOfBasementLevels: 0,
+      room: [{ id: "room-1" }],
+    } as any);
+
+    await expect(updateProperty(propertyId, userId, { numberOfLevels: 1 })).rejects.toThrow(
+      "Impossible de réduire le nombre de niveaux tant que le bien a des pièces",
+    );
+    expect(prismaMock.property.update).not.toHaveBeenCalled();
+  });
+
+  it("bloque la diminution de numberOfBasementLevels si le bien a des pièces", async () => {
+    prismaMock.property.findUnique.mockResolvedValue({
+      id: propertyId,
+      profile: { userId },
+      numberOfLevels: 2,
+      numberOfBasementLevels: 1,
+      room: [{ id: "room-1" }],
+    } as any);
+
+    await expect(updateProperty(propertyId, userId, { numberOfBasementLevels: 0 })).rejects.toThrow(
+      "Impossible de supprimer le niveau en sous-sol tant qu'il possède des pièces",
+    );
+    expect(prismaMock.property.update).not.toHaveBeenCalled();
+  });
+
+  it("autorise l'augmentation de numberOfLevels même si le bien a des pièces", async () => {
+    prismaMock.property.findUnique.mockResolvedValue({
+      id: propertyId,
+      profile: { userId },
+      numberOfLevels: 2,
+      numberOfBasementLevels: 0,
+      room: [{ id: "room-1" }],
+    } as any);
+    prismaMock.property.update.mockResolvedValue({ id: propertyId, numberOfLevels: 3 } as any);
+
+    const result = await updateProperty(propertyId, userId, { numberOfLevels: 3 });
+
+    expect(prismaMock.property.update).toHaveBeenCalledWith({ where: { id: propertyId }, data: { numberOfLevels: 3 } });
+    expect(result).toEqual({ id: propertyId, numberOfLevels: 3 });
   });
 });
 

@@ -1,9 +1,11 @@
 import apiClient from "../lib/axios";
 
-export const uploadDocument = async (propertyId: string, file: File) => {
+// propertyId/roomId exclusifs (jamais les deux), cf backend createDocumentController.
+export const uploadDocument = async ({ propertyId, roomId, file }: { propertyId?: string; roomId?: string; file: File }) => {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("propertyId", propertyId);
+  if (propertyId) formData.append("propertyId", propertyId);
+  if (roomId) formData.append("roomId", roomId);
   formData.append("title", file.name);
   formData.append("documentType", "BLUEPRINT");
 
@@ -15,6 +17,11 @@ export const uploadDocument = async (propertyId: string, file: File) => {
 
 export const getDocumentsByProperty = async (propertyId: string) => {
   const response = await apiClient.get(`/api/documents/${propertyId}`);
+  return response.data;
+};
+
+export const getDocumentsByRoom = async (roomId: string) => {
+  const response = await apiClient.get(`/api/documents/room/${roomId}`);
   return response.data;
 };
 

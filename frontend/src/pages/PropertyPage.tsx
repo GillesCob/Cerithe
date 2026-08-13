@@ -1,56 +1,24 @@
 import { useParams, Link } from "react-router-dom";
 import { useGetPropertyById } from "../hooks/useProperty";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import UploadDocumentForm from "@/components/document/UploadDocumentForm";
 import CreateTransmissionModal from "@/components/transmission/CreateTransmissionModal";
+import AddRoomsModal from "@/components/room/AddRoomsModal";
+import FeatureComingSoonButton from "@/components/shared/FeatureComingSoonButton";
+import { ROOM_TYPE_CONFIG } from "@/components/room/roomTypeConfig";
+import { getPropertyLevels, levelLabel } from "@/utils/propertyLevels";
 import { useGetDocuments, useDeleteDocument, useDownloadDocument } from "@/hooks/useDocument";
 import type { IDocument } from "@/types/document";
+import type { IRoom } from "@/types/room";
 import Navbar from "@/components/layout/Navbar";
-
-const FeatureComingSoonButton = ({ label }: { label: string }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Ferme le tooltip sur n'importe quel clic en dehors du bouton, pas seulement en recliquant
-  // dessus (mobile n'a pas de hover pour le fermer autrement).
-  useEffect(() => {
-    if (!showTooltip) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setShowTooltip(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, [showTooltip]);
-
-  return (
-    <div ref={containerRef} className="relative group">
-      <button
-        type="button"
-        onClick={() => setShowTooltip((v) => !v)}
-        className="cursor-pointer text-sm bg-gray-100 text-gray-400 px-4 py-2 rounded-lg"
-      >
-        {label}
-      </button>
-      <div
-        className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-max max-w-[9rem] text-center bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-lg pointer-events-none z-10 transition-opacity ${
-          showTooltip ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        }`}
-      >
-        <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 bg-gray-800 rotate-45" />
-        En développement
-      </div>
-    </div>
-  );
-};
 
 const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
   const { property, isPending, isError } = useGetPropertyById(id!);
   const [isUploading, setIsUploading] = useState(false);
   const [isTransmitting, setIsTransmitting] = useState(false);
+  const [isAddingRooms, setIsAddingRooms] = useState(false);
   const { documents } = useGetDocuments(id!);
   const { mutate: deleteDocument, isPending: isDeletingDocument } = useDeleteDocument();
   const { mutate: downloadDocument, isPending: isDownloadingDocument } = useDownloadDocument();
@@ -118,16 +86,25 @@ const PropertyPage = () => {
         </div>
         {isTransmitting && <CreateTransmissionModal propertyId={id!} onClose={() => setIsTransmitting(false)} />}
 
-        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-500 mb-10">
-          <span>{property.address}</span>
-          <span className="hidden sm:inline">·</span>
-          <span>{property.houseType === "HOUSE" ? "Maison" : "Appartement"}</span>
-          <span className="hidden sm:inline">·</span>
-          <span>{property.surface} m²</span>
-          <span className="hidden sm:inline">·</span>
-          <span>
-            {property.numberOfLevels} niveau{property.numberOfLevels > 1 ? "x" : ""}
-          </span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white border border-gray-200 rounded-2xl p-5 mb-10">
+          <div>
+            <p className="text-[11.5px] uppercase tracking-wide text-gray-400 mb-1">Adresse</p>
+            <p className="text-sm font-medium text-gray-900">{property.address}</p>
+          </div>
+          <div>
+            <p className="text-[11.5px] uppercase tracking-wide text-gray-400 mb-1">Type</p>
+            <p className="text-sm font-medium text-gray-900">{property.houseType === "HOUSE" ? "Maison" : "Appartement"}</p>
+          </div>
+          <div>
+            <p className="text-[11.5px] uppercase tracking-wide text-gray-400 mb-1">Surface</p>
+            <p className="text-sm font-medium text-gray-900">{property.surface} m²</p>
+          </div>
+          <div>
+            <p className="text-[11.5px] uppercase tracking-wide text-gray-400 mb-1">Niveaux</p>
+            <p className="text-sm font-medium text-gray-900">
+              {property.numberOfLevels} niveau{property.numberOfLevels > 1 ? "x" : ""}
+            </p>
+          </div>
         </div>
 
         <div className="border-t border-gray-200 pt-8">
@@ -181,11 +158,48 @@ const PropertyPage = () => {
 
         <div className="border-t border-gray-200 pt-8 mt-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">Pièces & travaux</h2>
-          <div className="flex flex-wrap gap-3 mb-20">
-            <FeatureComingSoonButton label="+ Ajouter une pièce" />
+
+          {getPropertyLevels(property)
+            .map((level) => ({
+              level,
+              rooms: (property.room ?? []).filter((room: IRoom) => room.level === level),
+            }))
+            .filter(({ rooms }) => rooms.length > 0)
+            .map(({ level, rooms }) => (
+              <div key={level} className="mb-6">
+                <h3 className="text-[13px] font-semibold uppercase tracking-wide text-gray-400 mb-2.5">
+                  {levelLabel(level)}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {rooms.map((room: IRoom) => {
+                    const RoomIcon = ROOM_TYPE_CONFIG[room.roomType].icon;
+                    return (
+                      <Link
+                        key={room.id}
+                        to={`/room/${room.id}`}
+                        className="flex items-center gap-2.5 border border-gray-200 rounded-lg p-3 bg-white hover:bg-gray-50"
+                      >
+                        <RoomIcon size={20} className="text-blue-600 shrink-0" />
+                        <span className="text-sm font-medium text-gray-900 truncate">{room.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+          <div className="flex flex-wrap gap-3 mt-6 mb-20">
+            <button
+              type="button"
+              onClick={() => setIsAddingRooms(true)}
+              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              + Ajouter une pièce
+            </button>
             <FeatureComingSoonButton label="+ Ajouter des travaux" />
             <FeatureComingSoonButton label="Vue 3D du bien" />
           </div>
+          {isAddingRooms && <AddRoomsModal property={property} onClose={() => setIsAddingRooms(false)} />}
         </div>
       </div>
     </div>

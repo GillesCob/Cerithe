@@ -4,5 +4,6 @@ export interface IDocument {
   type: string;
   url: string;
   createdAt: string;
-  propertyId: string;
+  propertyId: string | null;
+  roomId: string | null;
 }

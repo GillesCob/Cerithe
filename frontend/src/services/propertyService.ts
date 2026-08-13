@@ -6,6 +6,7 @@ export const addProperty = async (data: {
   houseType: string;
   surface: number;
   numberOfLevels: number;
+  numberOfBasementLevels?: number;
   profileId: string;
 }) => {
   const response = await apiClient.post("/api/properties", data);
@@ -29,6 +30,7 @@ export const updateProperty = async (
   houseType?: string,
   surface?: number,
   numberOfLevels?: number,
+  numberOfBasementLevels?: number,
 ) => {
   const response = await apiClient.put(`/api/properties/${id}`, {
     name,
@@ -36,6 +38,7 @@ export const updateProperty = async (
     houseType,
     surface,
     numberOfLevels,
+    numberOfBasementLevels,
   });
   return response.data;
 };

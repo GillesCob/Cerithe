@@ -51,13 +51,14 @@ interface IUpdatePropertyPayload {
   houseType?: string;
   surface?: number;
   numberOfLevels?: number;
+  numberOfBasementLevels?: number;
 }
 
 export const useUpdateProperty = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, name, address, houseType, surface, numberOfLevels }: IUpdatePropertyPayload) =>
-      updateProperty(id, name, address, houseType, surface, numberOfLevels),
+    mutationFn: ({ id, name, address, houseType, surface, numberOfLevels, numberOfBasementLevels }: IUpdatePropertyPayload) =>
+      updateProperty(id, name, address, houseType, surface, numberOfLevels, numberOfBasementLevels),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["properties"] });
       queryClient.invalidateQueries({ queryKey: ["property", variables.id] });

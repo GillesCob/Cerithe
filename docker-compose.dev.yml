@@ -1,0 +1,14 @@
+services:
+  cerithe-db-dev:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cerithe
+      POSTGRES_PASSWORD: 5d24b24b612954e25e4e0daadd65d64717f85004
+      POSTGRES_DB: cerithe_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - cerithe_dev_data:/var/lib/postgresql/data
+
+volumes:
+  cerithe_dev_data:

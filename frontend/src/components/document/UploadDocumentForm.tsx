@@ -6,12 +6,15 @@ import { useUploadDocument } from "@/hooks/useDocument";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB, cohérent avec upload.middleware.ts et le vhost Nginx
 
+// propertyId/roomId exclusifs (l'un des deux fourni selon le contexte d'appel, jamais les deux),
+// cf createDocumentController cote back.
 interface IUploadDocumentFormProps {
-  propertyId: string;
+  propertyId?: string;
+  roomId?: string;
   onClose: () => void;
 }
 
-const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocumentFormProps) => {
+const UploadDocumentForm = ({ propertyId, roomId, onClose }: IUploadDocumentFormProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +31,7 @@ const UploadDocumentForm = ({ propertyId: propertyId, onClose }: IUploadDocument
     if (!file) return;
     setErrorMessage(null);
     mutate(
-      { propertyId, file },
+      { propertyId, roomId, file },
       {
         onSuccess: onClose,
         onError: (error) => {

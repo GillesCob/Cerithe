@@ -1,14 +1,23 @@
 import prisma from "../lib/prisma.js";
-import type { PropertyDto } from "../validators/property.validator";
+import type { PropertyDto, UpdatePropertyDto } from "../validators/property.validator";
 import { getProfileById } from "./profile.service";
+import { omitUndefined } from "../utils/omitUndefined";
 
 export const createProperty = async (data: PropertyDto) => {
-  const newProperty = await prisma.property.create({ data });
+  // numberOfBasementLevels a un default(0) en base, mais reste explicite ici : le passer via
+  // omitUndefined (comme updateProperty) rendrait tous les champs optionnels aux yeux de Prisma,
+  // qui ne saurait alors plus choisir entre ses variantes Checked/Unchecked de create.
+  const newProperty = await prisma.property.create({
+    data: { ...data, numberOfBasementLevels: data.numberOfBasementLevels ?? 0 },
+  });
   return newProperty;
 };
 
 export const getPropertyById = async (id: string, userId: string) => {
-  const myProperty = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
+  const myProperty = await prisma.property.findUnique({
+    where: { id },
+    include: { profile: true, room: true },
+  });
   if (!myProperty) throw new Error("Bien non trouvé");
   if (myProperty.profile.userId !== userId) throw new Error("Non autorisé");
   return myProperty;
@@ -19,11 +28,27 @@ export const allOwnerProperties = async (profileId: string) => {
   return allProperties;
 };
 
-export const updateProperty = async (id: string, userId: string, data: Partial<PropertyDto>) => {
-  const property = await prisma.property.findUnique({ where: { id }, include: { profile: true } });
+export const updateProperty = async (id: string, userId: string, data: UpdatePropertyDto) => {
+  const property = await prisma.property.findUnique({ where: { id }, include: { profile: true, room: true } });
   if (!property) throw new Error("Bien non trouvé");
   if (property.profile.userId !== userId) throw new Error("Non autorisé");
-  const propertyModified = await prisma.property.update({ where: { id }, data });
+
+  // Seule une diminution est bloquee tant que le bien a au moins une piece (quel que soit son
+  // niveau) : l'augmentation reste toujours libre, meme avec des pieces existantes (cf suivi.html,
+  // v1.6.0, "aucune consequence sur les pieces existantes").
+  const hasRooms = property.room.length > 0;
+  if (hasRooms && data.numberOfLevels !== undefined && data.numberOfLevels < property.numberOfLevels) {
+    throw new Error("Impossible de réduire le nombre de niveaux tant que le bien a des pièces");
+  }
+  if (
+    hasRooms &&
+    data.numberOfBasementLevels !== undefined &&
+    data.numberOfBasementLevels < property.numberOfBasementLevels
+  ) {
+    throw new Error("Impossible de supprimer le niveau en sous-sol tant qu'il possède des pièces");
+  }
+
+  const propertyModified = await prisma.property.update({ where: { id }, data: omitUndefined(data) });
   return propertyModified;
 };
 
