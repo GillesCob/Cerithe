@@ -51,14 +51,15 @@ model Profile {
 }
 
 model Property {
-  id             String    @id @default(uuid())
-  name           String    @db.VarChar(50)
-  address        String    @db.VarChar(50)
-  houseType      houseType
-  surface        Int
-  numberOfLevels Int
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                    String    @id @default(uuid())
+  name                  String    @db.VarChar(50)
+  address               String    @db.VarChar(50)
+  houseType             houseType
+  surface               Int
+  numberOfLevels        Int
+  numberOfBasementLevels Int      @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   room         Room[]
   project      Project[]
@@ -72,15 +73,16 @@ model Property {
 }
 
 model Room {
-  id              String   @id @default(uuid())
-  name            String   @db.VarChar(50)
+  id              String    @id @default(uuid())
+  name            String    @db.VarChar(50)
   roomType        roomType
-  surface         Int
-  floorFinition   String   @db.VarChar(50)
-  wallFinition    String   @db.VarChar(50)
-  ceilingFinition String   @db.VarChar(50)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  level           Int
+  surface         Int?
+  floorFinition   String?   @db.VarChar(50)
+  wallFinition    String?   @db.VarChar(50)
+  ceilingFinition String?   @db.VarChar(50)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   task             Task[]
   document         Document[]
@@ -200,8 +202,25 @@ enum houseType {
 
 enum roomType {
   BEDROOM
-  KITCHEN
   LIVING_ROOM
+  KITCHEN
+  BATHROOM
+  SHOWER_ROOM
+  WC
+  OFFICE
+  ENTRANCE
+  HALLWAY
+  GARAGE
+  CELLAR
+  ATTIC
+  TERRACE
+  BALCONY
+  GARDEN
+  DRESSING_ROOM
+  STORAGE_ROOM
+  LAUNDRY_ROOM
+  TECHNICAL_ROOM
+  OTHER
 }
 
 enum projectStatus {

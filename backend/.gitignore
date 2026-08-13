@@ -3,3 +3,6 @@ node_modules
 .env
 
 /generated/prisma
+
+# Documents uploades en dev local (STORAGE_DIR), jamais versionnes
+/storage/documents

@@ -2,6 +2,7 @@ import express from "express";
 import type { Application } from "express";
 import authRouter from "./routes/auth.routes";
 import propertyRouter from "./routes/property.routes";
+import roomRouter from "./routes/room.routes";
 import documentRouter from "./routes/document.routes";
 import profileRouter from "./routes/profile.routes";
 import userRouter from "./routes/user.routes";
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 // Router
 app.use("/api/auth", authRouter);
 app.use("/api/properties", propertyRouter);
+app.use("/api/rooms", roomRouter);
 app.use("/api/documents", documentRouter);
 app.use("/api/profiles", profileRouter);
 app.use("/api/users", userRouter);

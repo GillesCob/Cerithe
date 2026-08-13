@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import { uploadDocument } from "../services/storage.service";
-import { createDocument, getDocumentsByProperty, deleteDocument, getDocumentForDownload } from "../services/document.service";
+import {
+  createDocument,
+  getDocumentsByProperty,
+  getDocumentsByRoom,
+  deleteDocument,
+  getDocumentForDownload,
+} from "../services/document.service";
 import type { documentType } from "../../prisma/generated/enums";
 
 // Le bucket Supabase limitait déjà l'upload à ces 3 types (contrôle multer/Zod en amont côté formulaire) :
@@ -15,13 +21,20 @@ const MIME_TYPES_BY_EXTENSION: Record<string, string> = {
 export const createDocumentController = async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ message: "Aucun fichier reçu" });
   const { buffer, originalname } = req.file;
-  const propertyId = req.body.propertyId as string;
+  const propertyId = (req.body.propertyId as string) || undefined;
+  const roomId = (req.body.roomId as string) || undefined;
   const type = req.body.documentType as documentType;
+
+  // propertyId et roomId sont exclusifs (colonnes nullable independantes en base, cf schema.prisma) :
+  // un document est rattache soit a un bien, soit a une piece, jamais les deux, jamais aucun des deux.
+  if ((!propertyId && !roomId) || (propertyId && roomId)) {
+    return res.status(400).json({ message: "Le document doit être rattaché à un bien ou à une pièce, jamais les deux" });
+  }
 
   try {
     const newDocument = await uploadDocument(buffer, originalname);
 
-    const newDbEntry = await createDocument(originalname, type, newDocument.path, propertyId);
+    const newDbEntry = await createDocument(originalname, type, newDocument.path, propertyId, roomId);
     return res.status(201).json({ newDocument, newDbEntry });
   } catch (error) {
     console.error(error);
@@ -33,6 +46,17 @@ export const getDocumentsByPropertyController = async (req: Request, res: Respon
   const propertyId = req.params.propertyId as string;
   try {
     const documents = await getDocumentsByProperty(propertyId);
+    return res.status(200).json(documents);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur lors de la récupération des documents" });
+  }
+};
+
+export const getDocumentsByRoomController = async (req: Request, res: Response) => {
+  const roomId = req.params.roomId as string;
+  try {
+    const documents = await getDocumentsByRoom(roomId);
     return res.status(200).json(documents);
   } catch (error) {
     console.error(error);

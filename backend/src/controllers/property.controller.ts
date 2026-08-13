@@ -65,8 +65,8 @@ export const updatePropertyController = async (req: Request, res: Response) => {
   const idPropertyToUpdate = req.params.id as string;
   const userId = req.user?.userId;
   if (!userId) return res.status(500).json({ message: "Utilisateur manquant" });
-  const { name, address, houseType, surface, numberOfLevels } = req.body;
-  const data = { name, address, houseType, surface, numberOfLevels };
+  const { name, address, houseType, surface, numberOfLevels, numberOfBasementLevels } = req.body;
+  const data = { name, address, houseType, surface, numberOfLevels, numberOfBasementLevels };
 
   try {
     const propertyToUpdate = await updateProperty(idPropertyToUpdate, userId, data);
