@@ -16,4 +16,6 @@ COPY tsconfig.json ./
 COPY src ./src
 
 EXPOSE 3000
-CMD ["npx", "tsx", "src/server.ts"]
+# migrate deploy avant de demarrer : idempotent (no-op si rien en attente), garantit que le schema
+# de la base est toujours aligne avec le code deploye, jamais oublie comme le 13/08 (v1.6.0).
+CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx src/server.ts"]
