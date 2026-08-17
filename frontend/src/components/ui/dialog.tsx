@@ -26,7 +26,10 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        // touch-none (17/08) : un swipe sur le fond assombri ne doit jamais etre interprete comme
+        // un scroll de page par Safari mobile (fait apparaitre/disparaitre sa barre d'outils et
+        // decale toute la modale, cf suivi.html v1.6.1 #8/#9).
+        "fixed inset-0 isolate z-50 touch-none bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className,
       )}
       {...props}
@@ -48,7 +51,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl bg-popover p-6 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 overflow-y-auto overscroll-y-contain rounded-xl bg-popover p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
         {...props}
@@ -68,7 +71,8 @@ function DialogContent({
 }
 
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="dialog-header" className={cn("flex flex-col gap-2", className)} {...props} />;
+  // touch-none (17/08) : meme raison que DialogOverlay, zone statique (titre), jamais de scroll a y interpreter.
+  return <div data-slot="dialog-header" className={cn("flex flex-col gap-2 touch-none", className)} {...props} />;
 }
 
 function DialogFooter({
@@ -80,7 +84,8 @@ function DialogFooter({
   showCloseButton?: boolean;
 }) {
   return (
-    <div data-slot="dialog-footer" className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props}>
+    // touch-none (17/08) : zone des boutons Annuler/Valider, jamais de scroll a y interpreter (cf DialogOverlay).
+    <div data-slot="dialog-footer" className={cn("flex flex-col-reverse gap-2 touch-none sm:flex-row sm:justify-end", className)} {...props}>
       {children}
       {showCloseButton && (
         <DialogPrimitive.Close asChild>

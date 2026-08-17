@@ -166,10 +166,8 @@ const PropertyPage = () => {
             }))
             .filter(({ rooms }) => rooms.length > 0)
             .map(({ level, rooms }) => (
-              <div key={level} className="mb-6">
-                <h3 className="text-[13px] font-semibold uppercase tracking-wide text-gray-400 mb-2.5">
-                  {levelLabel(level)}
-                </h3>
+              <div key={level} className="mb-3.5 border border-gray-200 rounded-xl p-3.5 pb-2">
+                <h3 className="text-[13px] font-bold text-gray-900 mb-2.5">{levelLabel(level)}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {rooms.map((room: IRoom) => {
                     const RoomIcon = ROOM_TYPE_CONFIG[room.roomType].icon;
@@ -194,7 +192,7 @@ const PropertyPage = () => {
               onClick={() => setIsAddingRooms(true)}
               className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-              + Ajouter une pièce
+              {(property.room ?? []).length > 0 ? "Gérer mes pièces" : "+ Ajouter une pièce"}
             </button>
             <FeatureComingSoonButton label="+ Ajouter des travaux" />
             <FeatureComingSoonButton label="Vue 3D du bien" />
