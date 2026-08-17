@@ -23,12 +23,11 @@ const selectionKey = (level: number, roomType: RoomType) => `${level}:${roomType
 const AddRoomsModal = ({ property, onClose }: IAddRoomsModalProps) => {
   const [selections, setSelections] = useState<Record<string, number>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // Un seul groupe de types ouvert a la fois, tous niveaux confondus (limite la hauteur de scroll
-  // de la modale) : cf regle popovers/dropdowns de ~/.claude/CLAUDE.md, meme mecanique que
-  // PropertyOwnerSelector. Cle = "niveau:groupe".
-  const [openGroupKey, setOpenGroupKey] = useState<string | null>(
-    () => `${getPropertyLevels(property)[0]}:${ROOM_TYPE_GROUPS[0]}`,
-  );
+  // Un groupe ouvert par niveau, independamment des autres niveaux (17/08, corrige la portee
+  // globale d'origine, cf suivi.html v1.6.1 #3) : cle = niveau, valeur = nom du groupe ouvert (ou
+  // null si ferme). Un niveau absent de la map affiche le 1er groupe ouvert par defaut, calcule a
+  // chaque rendu (jamais fige au montage), ce qui resout aussi l'instabilite #13 (meme cause racine).
+  const [openGroupByLevel, setOpenGroupByLevel] = useState<Record<number, string | null>>({});
   const { mutate: createRooms, isPending: isCreating } = useCreateRooms();
   const { mutate: updateProperty, isPending: isAddingLevel } = useUpdateProperty();
 
@@ -38,19 +37,38 @@ const AddRoomsModal = ({ property, onClose }: IAddRoomsModalProps) => {
   const existingCount = (level: number, roomType: RoomType) =>
     existingRooms.filter((room) => room.level === level && room.roomType === roomType).length;
 
+  const groupExistingCount = (level: number, group: string) =>
+    existingRooms.filter((room) => room.level === level && ROOM_TYPE_CONFIG[room.roomType]?.group === group).length;
+
+  const isGroupOpen = (level: number, group: string) => {
+    const current = level in openGroupByLevel ? openGroupByLevel[level] : ROOM_TYPE_GROUPS[0];
+    return current === group;
+  };
+
+  const toggleGroup = (level: number, group: string) => {
+    setOpenGroupByLevel((prev) => {
+      const current = level in prev ? prev[level] : ROOM_TYPE_GROUPS[0];
+      return { ...prev, [level]: current === group ? null : group };
+    });
+  };
+
+  // Selections stockees en total cible (pas en delta), cf suivi.html v1.6.1 #4 : cliquer une tuile
+  // deja existante affiche son total actuel plutot que de repartir de 1, le delta reel n'est
+  // calcule qu'a la soumission (handleSubmit).
   const toggleTile = (level: number, roomType: RoomType) => {
     const key = selectionKey(level, roomType);
     setSelections((prev) => {
       const next = { ...prev };
       if (next[key]) delete next[key];
-      else next[key] = 1;
+      else next[key] = Math.max(1, existingCount(level, roomType));
       return next;
     });
   };
 
   const setQuantity = (level: number, roomType: RoomType, quantity: number) => {
     const key = selectionKey(level, roomType);
-    setSelections((prev) => ({ ...prev, [key]: Math.max(1, quantity) }));
+    const floor = Math.max(1, existingCount(level, roomType));
+    setSelections((prev) => ({ ...prev, [key]: Math.max(floor, quantity) }));
   };
 
   const handleAddLevel = () => {
@@ -62,10 +80,15 @@ const AddRoomsModal = ({ property, onClose }: IAddRoomsModalProps) => {
   };
 
   const handleSubmit = () => {
-    const rooms = Object.entries(selections).map(([key, quantity]) => {
-      const [level, roomType] = key.split(":");
-      return { level: Number(level), roomType: roomType as RoomType, quantity };
-    });
+    // quantity stocke le total cible (cf toggleTile/setQuantity) : seul le delta avec l'existant
+    // est reellement a creer, une tuile laissee a sa valeur initiale (delta 0) n'ajoute rien.
+    const rooms = Object.entries(selections)
+      .map(([key, quantity]) => {
+        const [level, roomType] = key.split(":");
+        const delta = quantity - existingCount(Number(level), roomType as RoomType);
+        return { level: Number(level), roomType: roomType as RoomType, quantity: delta };
+      })
+      .filter((room) => room.quantity > 0);
     if (rooms.length === 0) return;
     setErrorMessage(null);
     createRooms(
@@ -86,7 +109,7 @@ const AddRoomsModal = ({ property, onClose }: IAddRoomsModalProps) => {
           <DialogTitle>Ajouter des pièces</DialogTitle>
         </DialogHeader>
 
-        <div className="max-h-[60vh] overflow-y-auto flex flex-col gap-3.5">
+        <div className="max-h-[60vh] overflow-y-auto overscroll-y-contain touch-pan-y flex flex-col gap-3.5">
           {property.numberOfBasementLevels === 0 && (
             <button
               type="button"
@@ -102,18 +125,23 @@ const AddRoomsModal = ({ property, onClose }: IAddRoomsModalProps) => {
             <div key={level} className="border border-gray-200 rounded-xl p-3.5 pb-1">
               <p className="text-[13px] font-bold text-gray-900 mb-2.5">{levelLabel(level)}</p>
               {ROOM_TYPE_GROUPS.map((group) => {
-                const groupKey = `${level}:${group}`;
-                const isGroupOpen = openGroupKey === groupKey;
+                const groupOpen = isGroupOpen(level, group);
+                const groupTotal = groupExistingCount(level, group);
                 return (
                   <div key={group} className="mb-2.5">
                     <button
                       type="button"
-                      onClick={() => setOpenGroupKey((prev) => (prev === groupKey ? null : groupKey))}
-                      className="w-full text-left cursor-pointer text-[11.5px] font-semibold uppercase tracking-wide text-gray-500 py-1"
+                      onClick={() => toggleGroup(level, group)}
+                      className="w-full flex items-center gap-1.5 text-left cursor-pointer text-[11.5px] font-semibold uppercase tracking-wide text-gray-500 py-1"
                     >
                       {group}
+                      {groupTotal > 0 && (
+                        <span className="bg-gray-200 text-gray-600 text-[9.5px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 normal-case tracking-normal">
+                          {groupTotal}
+                        </span>
+                      )}
                     </button>
-                    {isGroupOpen && (
+                    {groupOpen && (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1.5">
                         {(Object.entries(ROOM_TYPE_CONFIG) as [RoomType, (typeof ROOM_TYPE_CONFIG)[RoomType]][])
                           .filter(([, config]) => config.group === group)
